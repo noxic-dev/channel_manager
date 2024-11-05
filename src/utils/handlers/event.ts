@@ -13,8 +13,11 @@ export default async (client: Client, eventDir: string): Promise<string[]> => {
         const eventHandler = await import(
           `${path.join(eventDir, event)}/${file}`
         );
-        client.on(event, (...args) => eventHandler.default(...args));
-        eventArray.push(event, "✅");
+        client.on(event, (...args) => {
+          console.log(`Running event: ${event}`);
+          eventHandler.default(...args);
+        });
+        eventArray.push(event);
       }
     }
   }

@@ -8,11 +8,13 @@
     "esModuleInterop": true,
     "moduleResolution": "Node",
     "baseUrl": "./src", // Required for path aliases
+    "resolveJsonModule": true,
     "paths": {
       "@/utils/*": ["./utils/*"],
       "@/commands/*": ["./commands/*"],
-      "@/events/*": ["./events/*"]
+      "@/events/*": ["./events/*"],
+      "@/types/*": ["./types/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "src/@types/**/*"]
 }

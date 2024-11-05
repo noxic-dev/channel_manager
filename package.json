@@ -4,7 +4,7 @@
   "description": "",
   "main": "build/source.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && resolve-tspaths",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn src/source.ts",
     "start": "node build/source.js",
     "paths": "resolve-tspaths",

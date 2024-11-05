@@ -17,7 +17,7 @@ build/
 Thumbs.db
 
 # Environment variables and secrets
-.env
+
 .env.local
 .env.*.local
 
