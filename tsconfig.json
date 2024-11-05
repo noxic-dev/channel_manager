@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "CommonJS",
+    "outDir": "./build",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "baseUrl": "./src", // Required for path aliases
+    "paths": {
+      "@/utils/*": ["./utils/*"],
+      "@/commands/*": ["./commands/*"],
+      "@/events/*": ["./events/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}
