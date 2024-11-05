@@ -29,5 +29,8 @@ Thumbs.db
 *.njsproj
 *.sln
 
+# other
+.github
+
 # Typescript cache
 *.tsbuildinfo
