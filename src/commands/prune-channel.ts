@@ -66,7 +66,10 @@ export default {
         } else if (i.customId === 'confirm_prune') {
           const newChannel = await i.channel.clone();
           newChannel.setPosition(channelPosition);
-          newChannel.send({ content: 'Channel has been successfully nuked!' });
+          newChannel.send({
+            content:
+              'Channel has been successfully nuked! \nhttps://c.tenor.com/oikhN7oqj3kAAAAC/tenor.gif',
+          });
           i.channel.delete();
         }
       });
