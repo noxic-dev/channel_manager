@@ -18,4 +18,7 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             cd /home/noxic/projects/bots/channel_manager
-            git pull origin main
+            git pull origin master
+            npm ci
+            npm run build
+            pm2 restart "Bot: channelManager V2"
