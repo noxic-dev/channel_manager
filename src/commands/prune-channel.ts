@@ -64,11 +64,18 @@ export default {
           });
           collector.stop();
         } else if (i.customId === 'confirm_prune') {
+          const channelPrunedEmbed = new EmbedBuilder()
+            .setColor('DarkButNotBlack')
+            .setDescription('Channel has been successfully nuked!')
+            .setImage('https://c.tenor.com/oikhN7oqj3kAAAAC/tenor.gif')
+            .setFooter({
+              text: '[Add ChannelManager to your server!](https://top.gg/bot/1211346964554186842) | [Vote for ChannelManager!](https://top.gg/bot/1211346964554186842/vote)',
+            })
+            .setTimestamp(new Date());
           const newChannel = await i.channel.clone();
           newChannel.setPosition(channelPosition);
           newChannel.send({
-            content:
-              'Channel has been successfully nuked! \nhttps://c.tenor.com/oikhN7oqj3kAAAAC/tenor.gif',
+            embeds: [channelPrunedEmbed],
           });
           i.channel.delete();
         }
