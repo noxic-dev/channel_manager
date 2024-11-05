@@ -3,7 +3,7 @@ name: VPS_PULL
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
