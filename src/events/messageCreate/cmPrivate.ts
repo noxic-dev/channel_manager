@@ -30,7 +30,7 @@ export default async (message: any) => {
       ) {
         code.replace(/^```js|^```/, '');
         code = code.slice(0, -3).trim();
-        code = `(async () => \n${code}\n);`;
+        code = `(async () => {${code}})()`;
       }
       if (code.includes('await'))
         await message.react('<:soonTM:1303726162668949554>');
