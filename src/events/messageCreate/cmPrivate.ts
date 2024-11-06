@@ -3,7 +3,7 @@ export default async (message: any) => {
   const ownerId = '748968886237397036';
   const owner = await message.guild.members.fetch(ownerId);
   const args = message.content.split(' ');
-  if (message.author.user.id !== ownerId) return;
+  if (message.author.id !== ownerId) return;
   if (!message.content.toLowerCase().startsWith('.cm')) return;
   if (!args[1]) return;
 
