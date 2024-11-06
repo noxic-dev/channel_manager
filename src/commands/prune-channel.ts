@@ -70,9 +70,9 @@ export default {
             .setImage('https://c.tenor.com/oikhN7oqj3kAAAAC/tenor.gif')
             .addFields(
               {
-                name: 'Add ChannelManager to Your Server',
+                name: 'Add ChannelManager to Your Server | ',
                 value:
-                  '[Click here to add ChannelManager](https://top.gg/bot/1211346964554186842)',
+                  '[Click here to add ChannelManager](https://top.gg/bot/1211346964554186842) | ',
                 inline: true,
               },
               {
