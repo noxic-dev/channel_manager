@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           source: '.'
           target: '/home/noxic/projects/bots/channel_manager/temp_project'
-          rm -rf './src'  # Exclude the 'src' folder from transfer
+          rm -rf './src'
 
       - name: Deploy new build, node_modules, and other files on VPS
         uses: appleboy/ssh-action@master
