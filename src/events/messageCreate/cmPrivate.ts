@@ -1,77 +1,84 @@
 import { EmbedBuilder } from 'discord.js';
+import * as config from '@config';
 export default async (message: any) => {
-  const ownerId = '748968886237397036';
+  const ownerId = config.ownerId;
   const owner = await message.guild.members.fetch(ownerId);
   const args = message.content.split(' ');
-  if (message.author.id !== ownerId) return;
   if (!message.content.toLowerCase().startsWith('.cm')) return;
   if (!args[1]) return;
+  if (message.author.id !== ownerId) return message.react('❌');
 
   switch (args[1].toLowerCase()) {
     case 'ping':
       return message.channel.send('Pong!');
+
     case 'eval': {
       if (!args[2]) return message.channel.send('No code provided.');
 
-      // Extract code from triple backticks if present
-      const codeMatch = args
-        .slice(2)
-        .join(' ')
-        .match(/```(?:js)?\n([\s\S]*)\n```/);
-      const code = codeMatch ? codeMatch[1] : args.slice(2).join(' ');
-
-      try {
-        // Evaluate the code
-        let evaled = eval(code);
-
-        // Check if the result is a promise
-        if (evaled instanceof Promise) {
-          // Wait for the promise to resolve or reject
-          evaled
-            .then(async (result) => {
-              await message.react('✅'); // React with a success emoji if resolved
-
-              // Send the result back in an embed
-              const embed = new EmbedBuilder()
-                .setTitle('Eval Success')
-                .setDescription(`\`\`\`js\n${result}\n\`\`\``)
-                .setColor('Green');
-              message.channel.send({ embeds: [embed] });
-            })
-            .catch(async (error) => {
-              await message.react('❌'); // React with a failure emoji if rejected
-
-              // Send the error back in an embed
-              const embed = new EmbedBuilder()
-                .setTitle('Eval Failed')
-                .setDescription(`\`\`\`js\n${error}\n\`\`\``)
-                .setColor('Red');
-              message.channel.send({ embeds: [embed] });
-            });
-        } else {
-          // If not a promise, handle success immediately
-          message.react('✅'); // React with success emoji
-
-          // Send the result back in an embed
-          const embed = new EmbedBuilder()
-            .setTitle('Eval Success')
-            .setDescription(`\`\`\`js\n${evaled}\n\`\`\``)
-            .setColor('Green');
-          message.channel.send({ embeds: [embed] });
-        }
-      } catch (error) {
-        // Handle synchronous errors
-        message.react('❌'); // React with failure emoji
-
-        // Send the error back in an embed
-        const embed = new EmbedBuilder()
-          .setTitle('Eval Failed')
-          .setDescription(`\`\`\`js\n${error}\n\`\`\``)
-          .setColor('Red');
-        message.channel.send({ embeds: [embed] });
+      let code = args.slice(2).join(' ');
+      if (code.startsWith('```') && code.endsWith('```')) {
+        code = code.slice(3, -3).trim();
       }
+
+      let consoleOutput = '';
+      const originalConsoleLog = console.log;
+
+      console.log = (...args) => {
+        const log = args.join(' ');
+        consoleOutput += log + '\n';
+        originalConsoleLog(...args);
+      };
+
+      let botResponse;
+      try {
+        const asyncEval = async () => eval(code);
+        let evaled = await asyncEval();
+
+        console.log = originalConsoleLog;
+
+        if (evaled instanceof Promise) {
+          evaled = await evaled;
+          await message.react('✅');
+        }
+
+        const finalConsoleOutput =
+          consoleOutput.trim() || 'No logs during EVAL';
+
+        const embed = new EmbedBuilder()
+          .setTitle('Eval Success')
+          .setDescription(`\`\`\`js\n${code}\n\`\`\``)
+          .addFields({
+            name: 'Console Output',
+            value: `\`\`\`js\n${finalConsoleOutput.slice(0, 2000)}\n\`\`\``,
+          })
+          .setColor('Green');
+        botResponse = await message.channel.send({ embeds: [embed] });
+        setTimeout(() => {
+          message.delete();
+        }, 500);
+      } catch (error: any) {
+        console.log = originalConsoleLog;
+        message.react('❌');
+
+        const errorEmbed = new EmbedBuilder()
+          .setTitle('Eval Failed')
+          .setDescription(
+            `\`\`\`js\n${error.toString().slice(0, 2000)}\n\`\`\``
+          )
+          .setColor('Red');
+        botResponse = await message.channel.send({
+          embeds: [errorEmbed],
+        });
+        setTimeout(() => {
+          message.delete();
+        }, 500);
+      }
+      setTimeout(() => {
+        botResponse?.delete();
+      }, 5000);
       break;
     }
+
     default:
       return message.channel.send('Invalid command.');
   }
