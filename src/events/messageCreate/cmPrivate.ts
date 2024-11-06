@@ -11,7 +11,6 @@ export default async (message: any) => {
     case 'ping':
       return message.channel.send('Pong!');
     case 'eval': {
-      // Check if code is provided
       if (!args[2]) return message.channel.send('No code provided.');
 
       // Extract code from triple backticks if present
