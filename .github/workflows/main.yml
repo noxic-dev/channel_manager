@@ -56,41 +56,35 @@ jobs:
             cd /home/noxic/projects/bots/channel_manager/temp_project
             rm -rf src
 
-      - name: Deploy new build, node_modules, and other files on VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          script: |
-            cd /home/noxic/projects/bots/channel_manager
+- name: Deploy new build, node_modules, and other files on VPS
+  uses: appleboy/ssh-action@master
+  with:
+    host: ${{ secrets.VPS_HOST }}
+    username: ${{ secrets.VPS_USER }}
+    password: ${{ secrets.VPS_PASSWORD }}
+    script: |
+      cd /home/noxic/projects/bots/channel_manager
 
-            # Ensure the backup directories exist as directories
-            rm -rf build_backup
-            mkdir -p build_backup
-            rm -rf node_modules_backup
-            mkdir -p node_modules_backup
+      # Ensure the backup directories exist as directories
+      rm -rf build_backup
+      mv build build_backup 2>/dev/null || true  # Move old build to backup if it exists
 
-            # Move current build and node_modules to the backup directories
-            if [ -d "build" ]; then
-              mv build/* build_backup/
-              rm -rf build
-            fi
+      rm -rf node_modules_backup
+      mv node_modules node_modules_backup 2>/dev/null || true  # Move old node_modules to backup if it exists
 
-            if [ -d "node_modules" ]; then
-              mv node_modules/* node_modules_backup/
-              rm -rf node_modules
-            fi
+      # Remove any existing build and node_modules directories to prevent nesting
+      rm -rf build
+      rm -rf node_modules
 
-            # Move the new build and node_modules into place
-            mv build_temp build
-            mv node_modules_temp node_modules
+      # Move the new build and node_modules into place
+      mv build_temp build
+      mv node_modules_temp node_modules
 
-            # Copy other updated files from temp_project, excluding 'src' (already removed)
-            rsync -a temp_project/ ./
+      # Copy other updated files from temp_project, excluding 'src' (already removed)
+      rsync -a temp_project/ ./
 
-            # Clean up the temp directory
-            rm -rf temp_project
+      # Clean up the temp directory
+      rm -rf temp_project
 
-            # Restart the PM2 process
-            pm2 restart "Bot: channelManager V2"
+      # Restart the PM2 process
+      pm2 restart "Bot: channelManager V2"
