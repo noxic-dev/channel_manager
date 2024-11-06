@@ -86,5 +86,12 @@ jobs:
             # Clean up the temp directory
             rm -rf temp_project
 
+            cd /home/noxic/projects/bots/channel_manager/build
+            rm -rf build
+            cd ..
+            cd node_modules
+            rm -rf node_modules
+            cd ..
+
             # Restart the PM2 process
             pm2 restart "Bot: channelManager V2"
