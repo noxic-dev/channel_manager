@@ -26,7 +26,7 @@ export default {
         .addFields({
           name: 'Effects:',
           value:
-            '• **Delete all webhooks** associated with the current channel\n• **Change the Channel ID**, affecting any references to the original ID',
+            '• **Delete all webhooks** associated with the current channel\n• **Change the Channel ID**, affecting any references to the original ID\n-# We are not liable for any actions that may or may not happen by using this command!',
         })
         .setFooter({
           text: 'Consider these changes before proceeding with channel pruning.',
@@ -68,9 +68,21 @@ export default {
             .setColor('DarkButNotBlack')
             .setDescription('Channel has been successfully nuked!')
             .setImage('https://c.tenor.com/oikhN7oqj3kAAAAC/tenor.gif')
-            .setFooter({
-              text: '[Add ChannelManager to your server!](https://top.gg/bot/1211346964554186842) | [Vote for ChannelManager!](https://top.gg/bot/1211346964554186842/vote)',
-            })
+            .addFields(
+              {
+                name: 'Add ChannelManager to Your Server',
+                value:
+                  '[Click here to add ChannelManager](https://top.gg/bot/1211346964554186842)',
+                inline: true,
+              },
+              {
+                name: 'Vote for ChannelManager',
+                value:
+                  '[Click here to vote](https://top.gg/bot/1211346964554186842/vote)',
+                inline: true,
+              }
+            )
+            .setFooter({ text: 'ChannelManager' })
             .setTimestamp(new Date());
           const newChannel = await i.channel.clone();
           newChannel.setPosition(channelPosition);
