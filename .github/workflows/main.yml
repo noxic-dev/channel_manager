@@ -25,8 +25,8 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
-          source: "./build"  # Specify the build directory or files you want to transfer
-          target: "/home/noxic/projects/bots/channel_manager/build"
+          source: './build' # Specify the build directory or files you want to transfer
+          target: '/home/noxic/projects/bots/channel_manager/'
 
       - name: Restart PM2 process on VPS
         uses: appleboy/ssh-action@master
