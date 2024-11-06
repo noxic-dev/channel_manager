@@ -28,10 +28,11 @@ export default async (message: any) => {
         (code.startsWith('```js') && code.endsWith('```')) ||
         (code.startsWith('```') && code.endsWith('```'))
       ) {
-        code.replace(/^```js|^```/, '');
+        code = code.replace(/^```js|^```/, '');
         code = code.slice(0, -3).trim();
         code = `(async () => {${code}})()`;
       }
+      console.log(code);
       if (code.includes('await'))
         await message.react('<:soonTM:1303726162668949554>');
 
