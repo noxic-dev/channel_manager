@@ -25,10 +25,12 @@ export default async (message: any) => {
 
       let code = args.slice(2).join(' ');
       if (
-        code.startsWith('```') ||
-        (code.startsWith('```js') && code.endsWith('```'))
+        (code.startsWith('```js') && code.endsWith('```')) ||
+        (code.startsWith('```') && code.endsWith('```'))
       ) {
-        code = code.slice(3, -3).trim();
+        code.replace(/^```js|^```/, '');
+        code = code.slice(0, -3).trim();
+        code = `(async () => \n${code}\n);`;
       }
       if (code.includes('await'))
         await message.react('<:soonTM:1303726162668949554>');
@@ -55,7 +57,7 @@ export default async (message: any) => {
         }
 
         const finalConsoleOutput =
-          consoleOutput.trim() || 'No logs during EVAL';
+          consoleOutput.trim() || 'No logs during eval.';
 
         const embed = new EmbedBuilder()
           .setTitle('Eval Success')
@@ -90,7 +92,7 @@ export default async (message: any) => {
         const actionRow1 = new ActionRowBuilder().addComponents(
           new ButtonBuilder()
             .setStyle(ButtonStyle.Secondary)
-            .setEmoji('<:TrashBin:1303729257821769748>')
+            .setEmoji('<:TrashBin_red:1303739433408794696>')
             .setCustomId(`DeleteEval-${botResponse.id}`)
         );
 
