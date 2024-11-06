@@ -19,16 +19,35 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Transfer files to VPS
+      - name: Transfer build to VPS temporary folder
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
-          source: './build' # Specify the build directory or files you want to transfer
-          target: '/home/noxic/projects/bots/channel_manager/'
+          source: './build'
+          target: '/home/noxic/projects/bots/channel_manager/build_temp'
 
-      - name: Restart PM2 process on VPS
+      - name: Transfer node_modules to VPS temporary folder
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: './node_modules'
+          target: '/home/noxic/projects/bots/channel_manager/node_modules_temp'
+
+      - name: Transfer other project files to VPS temporary folder
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: '.'
+          target: '/home/noxic/projects/bots/channel_manager/temp_project'
+          rm -rf './src'  # Exclude the 'src' folder from transfer
+
+      - name: Deploy new build, node_modules, and other files on VPS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -36,4 +55,33 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             cd /home/noxic/projects/bots/channel_manager
+            
+            # Ensure the backup directories exist as directories
+            rm -rf build_backup
+            mkdir -p build_backup
+            rm -rf node_modules_backup
+            mkdir -p node_modules_backup
+
+            # Move current build and node_modules to the backup directories
+            if [ -d "build" ]; then
+              mv build/* build_backup/
+              rm -rf build
+            fi
+
+            if [ -d "node_modules" ]; then
+              mv node_modules/* node_modules_backup/
+              rm -rf node_modules
+            fi
+
+            # Move the new build and node_modules into place
+            mv build_temp build
+            mv node_modules_temp node_modules
+
+            # Copy other updated files from temp_project, excluding 'src' folder
+            rsync -a --exclude 'src' temp_project/ ./
+
+            # Clean up the temp directory
+            rm -rf temp_project
+
+            # Restart the PM2 process
             pm2 restart "Bot: channelManager V2"
