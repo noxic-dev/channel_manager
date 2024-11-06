@@ -30,8 +30,8 @@ Thumbs.db
 *.sln
 
 # other
-.github
+.github/
 .vscode
-
+.gitignore
 # Typescript cache
 *.tsbuildinfo
