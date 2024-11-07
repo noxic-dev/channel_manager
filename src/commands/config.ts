@@ -4,6 +4,8 @@ import {
   ButtonBuilder,
   ButtonStyle,
   CommandInteraction,
+  Interaction,
+  ChatInputCommandInteraction,
 } from 'discord.js';
 
 interface Feature {
@@ -65,7 +67,7 @@ export default {
     },
   ],
   permissions: ['ManageGuild'],
-  callback: async (interaction: any) => {
+  callback: async (interaction: ChatInputCommandInteraction) => {
     const type = interaction.options.getString('type');
     if (type !== 'features') {
       return interaction.reply({

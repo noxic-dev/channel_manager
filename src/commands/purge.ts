@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { ChatInputCommandInteraction, Message, TextChannel } from 'discord.js';
 
 export default {
   options: [
@@ -10,9 +10,12 @@ export default {
     },
   ],
   permissions: ['ManageMessages'],
-  // @ts-ignore
-  callback: async (interaction, guild, channel, config) => {
+  callback: async (
+    interaction: ChatInputCommandInteraction,
+    channel: TextChannel
+  ) => {
     const clearAmount = interaction.options.getNumber('amount');
+    if (!clearAmount) throw new Error('You must specify an amount');
     if (clearAmount > 500)
       throw new Error("You can't delete more than 500 messages");
 
@@ -33,10 +36,12 @@ export default {
     for await (const chunk of splitChunks) {
       await channel.bulkDelete(chunk);
     }
-    return interaction
-      .reply({
-        content: `Deleted ${clearAmount} messages`,
-      })
-      .then((msg: Message) => setTimeout(() => msg.delete(), 5000));
+    const purgedMessage = await interaction.reply({
+      content: `Deleted ${clearAmount} messages`,
+    });
+
+    setTimeout(() => {
+      purgedMessage.delete();
+    }, 5000);
   },
 };

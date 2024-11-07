@@ -3,12 +3,18 @@ import {
   EmbedBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ChatInputCommandInteraction,
+  Guild,
+  TextChannel,
+  ButtonInteraction,
 } from 'discord.js';
 
 export default {
   permissions: ['ManageChannels'],
-  // @ts-ignore
-  callback: async (interaction, guild, channel, config) => {
+  callback: async (
+    interaction: ChatInputCommandInteraction,
+    channel: TextChannel
+  ) => {
     const isEnabledInGuild = true;
     if (isEnabledInGuild) {
       const channelPosition = channel.position;
@@ -32,7 +38,7 @@ export default {
           text: 'Consider these changes before proceeding with channel pruning.',
         });
 
-      const buttonRow = new ActionRowBuilder().addComponents(
+      const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setStyle(ButtonStyle.Success)
           .setLabel('Cancel')
@@ -49,18 +55,21 @@ export default {
         ephemeral: true,
       });
 
-      const filter = (i: any) => i.user.id === interaction.user.id;
-      const collector = interaction.channel.createMessageComponentCollector({
-        filter,
+      const collector = (
+        interaction.channel as TextChannel
+      )?.createMessageComponentCollector({
+        filter: (i) => i.isButton() && i.user.id === interaction.user.id,
         time: 15000,
       });
-      collector.on('collect', async (i: any) => {
+
+      if (!collector) throw new Error('Collector could not be created.');
+
+      collector.on('collect', async (i: ButtonInteraction<'cached'>) => {
         if (i.customId === 'cancel_prune') {
           await i.update({
             content: 'Canceled!',
             embeds: [],
             components: [],
-            ephemeral: true,
           });
           collector.stop();
         } else if (i.customId === 'confirm_prune') {
@@ -84,12 +93,16 @@ export default {
             )
             .setFooter({ text: 'ChannelManager' })
             .setTimestamp(new Date());
-          const newChannel = await i.channel.clone();
-          newChannel.setPosition(channelPosition);
-          newChannel.send({
-            embeds: [channelPrunedEmbed],
-          });
-          i.channel.delete();
+          if (i.channel instanceof TextChannel) {
+            const newChannel = await i.channel.clone();
+            await newChannel.setPosition(i.channel.position);
+            await newChannel.send({
+              embeds: [channelPrunedEmbed],
+            });
+            await i.channel.delete();
+          } else {
+            throw new Error('This command only works in text channels.');
+          }
         }
       });
     } else throw new Error('This command is disabled in this guild.');

@@ -1,4 +1,5 @@
 import { startupTime } from '@/types/../source';
+import { ChatInputCommandInteraction, Guild, TextChannel } from 'discord.js';
 export default {
   options: [
     {
@@ -9,8 +10,13 @@ export default {
     },
   ],
   permissions: ['SendMessages'],
-  // @ts-ignore
-  callback: async (interaction, guild, channel, config): Promise<void> => {
+
+  callback: async (
+    interaction: ChatInputCommandInteraction,
+    guild: Guild,
+    channel: TextChannel,
+    config: any
+  ) => {
     return interaction.reply({ content: startupTime, ephemeral: true });
   },
 };
