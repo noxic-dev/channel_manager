@@ -24,12 +24,14 @@ export default async (message: any) => {
       if (!args[2]) return message.channel.send('No code provided.');
 
       let code = args.slice(2).join(' ');
+      let originalCode = code;
       if (
         (code.startsWith('```js') && code.endsWith('```')) ||
         (code.startsWith('```') && code.endsWith('```'))
       ) {
         code = code.replace(/^```js|^```/, '');
         code = code.slice(0, -3).trim();
+        originalCode = code;
         code = `(async () => {${code}})()`;
       }
       console.log(code);
@@ -62,7 +64,7 @@ export default async (message: any) => {
 
         const embed = new EmbedBuilder()
           .setTitle('Eval Success')
-          .setDescription(`\`\`\`js\n${code}\n\`\`\``)
+          .setDescription(`\`\`\`js\n${originalCode}\n\`\`\``)
           .addFields({
             name: 'Console Output',
             value: `\`\`\`js\n${finalConsoleOutput.slice(0, 2000)}\n\`\`\``,
