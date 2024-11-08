@@ -32,22 +32,20 @@ const features: Feature[] = [
     permissions: 'ManageChannels',
     currentState: 'Disabled',
   },
-  // Add more features as needed
 ];
 
-// Helper function to add dynamic padding based on embed content length and label length
 function createPaddedLabel(
   label: string,
   embedLength: number,
   maxLabelLength: number
 ) {
-  const basePadding = 4; // base padding amount
+  const basePadding = 4;
   const paddingAmount = Math.max(
     basePadding,
     Math.floor(embedLength / 50),
     Math.ceil(maxLabelLength / 10)
-  ); // Adjust padding based on length
-  const padding = ' '.repeat(paddingAmount); // Create padding with regular spaces
+  );
+  const padding = ' '.repeat(paddingAmount);
   return `.${padding}${label}${padding}.`;
 }
 
@@ -56,7 +54,7 @@ export default {
     {
       name: 'type',
       description: 'What type of config to edit',
-      type: 3, // STRING type for Discord API
+      type: 3,
       required: true,
       choices: [
         {
@@ -79,7 +77,6 @@ export default {
     const itemsPerPage = 1;
     let currentPage = 0;
 
-    // Helper function to generate the embed for the current page
     const generateEmbed = (page: number) => {
       const start = page * itemsPerPage;
       const end = start + itemsPerPage;
@@ -94,7 +91,6 @@ export default {
           )}`,
         });
 
-      // Add each feature's details to the embed
       currentFeatures.forEach((feature) => {
         embed.addFields({
           name: `● **${feature.name}**`,
@@ -111,7 +107,6 @@ export default {
       return embed;
     };
 
-    // Initial calculation of embed content length and label length for dynamic button padding
     let embedContentLength = 0;
     let maxLabelLength = 0;
     const updateEmbedContentLength = () => {
@@ -128,7 +123,6 @@ export default {
 
     updateEmbedContentLength();
 
-    // Button rows with dynamically padded labels
     const currentFeature = features[currentPage];
 
     const buttonRow1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -161,7 +155,6 @@ export default {
         )
     );
 
-    // Initial message with the first embed
     const embedMessage = await interaction.reply({
       embeds: [generateEmbed(currentPage)],
       components: [buttonRow1, buttonRow2],
@@ -169,14 +162,12 @@ export default {
       ephemeral: true,
     });
 
-    // Collector for button interactions
     const collector = embedMessage.createMessageComponentCollector({
       filter: (i: any) => i.user.id === interaction.user.id,
       time: 1000 * 60 * 5, // 5-minute timeout
     });
 
     collector.on('collect', async (btnInteraction: any) => {
-      // Handle button interactions
       if (
         btnInteraction.customId === 'next' &&
         currentPage < Math.ceil(features.length / itemsPerPage) - 1
@@ -186,13 +177,10 @@ export default {
         currentPage--;
       }
 
-      // Update embed content length and label length
       updateEmbedContentLength();
 
-      // Update current feature
       const currentFeature = features[currentPage];
 
-      // Update buttons' disabled states and labels with new padding
       buttonRow1.components[0]
         .setCustomId(`config:enable:feature:${currentFeature.machineName}`)
         .setLabel(
@@ -217,7 +205,6 @@ export default {
     });
 
     collector.on('end', async () => {
-      // Disable all buttons after timeout
       buttonRow1.components.forEach((button) => button.setDisabled(true));
       buttonRow2.components.forEach((button) => button.setDisabled(true));
       await embedMessage.delete();
