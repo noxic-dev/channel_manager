@@ -1,29 +1,41 @@
-import { Client } from "discord.js";
-import fs from "fs";
-import path from "path";
-import type { Command } from "../../@types/global.js";
+import {
+  ApplicationCommand,
+  ApplicationCommandDataResolvable,
+  ApplicationCommandOption,
+  ApplicationCommandOptionData,
+  Client,
+  ClientApplication,
+} from 'discord.js';
+import fs from 'fs';
+import path from 'path';
+import type { Command } from '../../@types/global.js';
 
 const commands: Command[] = [];
 const applicationCommandsArray: object[] = [];
-export default async (client: any, commandDir: string): Promise<Command[]> => {
-  const fetchedCommands = await client.application.commands.fetch();
+export default async (
+  client: Client,
+  commandDir: string
+): Promise<Command[]> => {
+  const fetchedCommands = await (
+    client.application as ClientApplication
+  ).commands.fetch();
   let hasChanges = false;
 
   for (const file of fs.readdirSync(commandDir)) {
-    if (file.endsWith(".ts") || file.endsWith(".js")) {
+    if (file.endsWith('.ts') || file.endsWith('.js')) {
       const commandHandler = (await import(path.join(commandDir, file)))
         .default;
       console.log(path.join(commandDir, file));
       console.log(commandHandler.permissions);
 
-      const commandName = file.split(".")[0];
+      const commandName = file.split('.')[0];
       const commandDescription =
         `A command with perms: ${commandHandler.permissions
           .toString()
-          .replace("[", "")
-          .replace("]", "")
-          .replace('"', "")
-          .replace(",", ", ")}` || "No perms";
+          .replace('[', '')
+          .replace(']', '')
+          .replace('"', '')
+          .replace(',', ', ')}` || 'No perms';
 
       commands.push({
         name: commandName,
@@ -39,7 +51,7 @@ export default async (client: any, commandDir: string): Promise<Command[]> => {
       });
 
       const fetchedCommand = fetchedCommands.find(
-        (cmd: any) => cmd.name === commandName
+        (cmd: ApplicationCommand) => cmd.name === commandName
       );
 
       if (!fetchedCommand) {
@@ -62,15 +74,23 @@ export default async (client: any, commandDir: string): Promise<Command[]> => {
         const fetchedOptions = fetchedCommand.options || [];
         const newOptions = commandHandler.options || [];
 
-        const normalizeOptions = (options: any) => {
-          return options
-            .map((option: any) => ({
-              name: option.name,
-              description: option.description,
-              type: option.type,
-              required: option.required,
-            }))
-            .sort((a: any, b: any) => a.name.localeCompare(b.name));
+        const normalizeOptions = (options: ApplicationCommandOption[]) => {
+          return (
+            options
+              // Filter out only options that have a 'required' property, excluding ApplicationCommandSubGroup
+              .filter((option): option is ApplicationCommandOptionData => {
+                return (
+                  'required' in option && typeof option.required === 'boolean'
+                );
+              })
+              .map((option: ApplicationCommandOptionData) => ({
+                name: option.name,
+                description: option.description,
+                type: option.type,
+                required: (option as any).required, // TypeScript now knows `required` is valid here
+              }))
+              .sort((a, b) => a.name.localeCompare(b.name))
+          );
         };
 
         if (
@@ -96,10 +116,12 @@ export default async (client: any, commandDir: string): Promise<Command[]> => {
   }
 
   if (hasChanges) {
-    console.log("Setting commands to Discord...");
-    await client.application.commands.set(applicationCommandsArray);
+    console.log('Setting commands to Discord...');
+    await (client.application as ClientApplication).commands.set(
+      applicationCommandsArray as ApplicationCommandDataResolvable[]
+    );
   } else {
-    console.log("No changes detected in commands.");
+    console.log('No changes detected in commands.');
   }
   return commands;
 };

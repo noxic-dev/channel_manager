@@ -1,17 +1,24 @@
-import { commandsTable, eventsTable } from "../../source";
-import loadCommands from "@/utils/handlers/command";
-import path from "path";
+import loadCommands from '@/utils/handlers/command';
+import { Client } from 'discord.js';
+import path from 'path';
+import Table from 'cli-table3';
 let commands: any = [];
-export default async (client: any) => {
+
+const commandsTable = new Table({
+  head: ['Command', 'Success'],
+  style: { head: ['green'] },
+  colWidths: [15, 15],
+});
+
+export default async (client: Client) => {
   commands = await loadCommands(
     client,
-    path.join(__dirname, "../../", "commands")
+    path.join(__dirname, '../../', 'commands')
   );
   commands.forEach((command: any) => {
-    commandsTable.push([command.name, "✅"]);
+    commandsTable.push([command.name, '✅']);
   });
-  //   console.log(eventsTable.toString());
-  //   console.log(commandsTable.toString());
-  console.timeEnd("Startup");
+  console.log(commandsTable.toString());
+  console.timeEnd('Startup');
 };
 export { commands };

@@ -1,11 +1,18 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   EmbedBuilder,
+  Message,
+  MessageComponentInteraction,
+  TextChannel,
 } from 'discord.js';
 import * as config from '@config';
-export default async (message: any) => {
+export default async (message: Message) => {
+  if (!(message.channel instanceof TextChannel)) return;
+  if (!message.guild) return;
+
   const ownerId = config.ownerId;
   const owner = await message.guild.members.fetch(ownerId);
   const args = message.content.split(' ');
@@ -74,7 +81,7 @@ export default async (message: any) => {
         setTimeout(() => {
           message.delete();
         }, 500);
-      } catch (error: any) {
+      } catch (error: Error | any) {
         console.log = originalConsoleLog;
         message.react('❌');
 
@@ -92,7 +99,8 @@ export default async (message: any) => {
         }, 500);
       }
       setTimeout(() => {
-        const actionRow1 = new ActionRowBuilder().addComponents(
+        if (!(message.channel instanceof TextChannel)) return;
+        const actionRow1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setStyle(ButtonStyle.Secondary)
             .setEmoji('<:TrashBin_red:1303739433408794696>')
@@ -101,13 +109,12 @@ export default async (message: any) => {
 
         botResponse?.edit({ components: [actionRow1] });
 
-        const filter = (i: any) => i.customId.startsWith('DeleteEval-');
-        const collector = message.channel.createMessageComponentCollector({
-          filter,
+        const collector = message.createMessageComponentCollector({
+          filter: (i) => i.customId.startsWith('DeleteEval-'),
           time: 60000,
         });
 
-        collector.on('collect', async (i: any) => {
+        collector.on('collect', async (i: ButtonInteraction<'cached'>) => {
           if (i.customId.split('-')[1] !== botResponse.id) return;
           if (i.user.id !== message.author.id) return;
           await botResponse.delete();

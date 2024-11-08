@@ -1,9 +1,23 @@
 import { commands } from '../ready/clientWake';
 import config from '../../../config.json';
-export default async (interaction: any) => {
+import {
+  ChatInputCommandInteraction,
+  Guild,
+  GuildMember,
+  PermissionResolvable,
+  PermissionsBitField,
+  TextChannel,
+} from 'discord.js';
+export default async (interaction: ChatInputCommandInteraction) => {
   if (interaction.isCommand()) {
+    if (!interaction.guild)
+      return interaction.reply({
+        content: 'This command can only be used in a server.',
+        ephemeral: true,
+      });
+    if (!interaction.member) return;
     const commandHandler = commands.find(
-      (c: any) => c.name === interaction.commandName
+      (c: TextChannel) => c.name === interaction.commandName
     ).handler;
     if (commandHandler) {
       const botMember = interaction.guild.members.fetch(
@@ -13,8 +27,8 @@ export default async (interaction: any) => {
         interaction.user.id
       );
       if (
-        !commandHandler.permissions.every((permission: string) =>
-          interaction.member.permissions.has(permission)
+        !commandHandler.permissions.every((permission: PermissionResolvable) =>
+          (interaction.member as GuildMember).permissions.has(permission)
         )
       ) {
         return interaction.reply({
@@ -25,8 +39,10 @@ export default async (interaction: any) => {
         });
       }
       if (
-        !commandHandler.permissions.every((permission: string) =>
-          interaction.guild.members.me.permissions.has(permission)
+        !commandHandler.permissions.every((permission: PermissionResolvable) =>
+          (interaction.member as GuildMember).permissions.has(
+            permission as PermissionResolvable
+          )
         )
       ) {
         return interaction.reply({

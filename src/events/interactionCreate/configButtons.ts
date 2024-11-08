@@ -1,5 +1,7 @@
 import { sql } from '@/utils/connections/postgresDb';
-export default async (interaction: any) => {
+import { ButtonInteraction } from 'discord.js';
+import { QueryResult } from 'pg';
+export default async (interaction: ButtonInteraction<'cached'>) => {
   if (interaction.isButton() && interaction.customId.startsWith('config:')) {
     const configType = interaction.customId.split(':')[2];
 
@@ -14,8 +16,8 @@ export default async (interaction: any) => {
       const query = `UPDATE config SET ${featureName} = $1 WHERE guild_id = $2`;
       const values = [enableValue, guildId];
 
-      sql.query(query, values).then((result: any) => {
-        interaction.update({
+      sql.query(query, values).then((result: QueryResult) => {
+        interaction.reply({
           content: `Feature ${featureName} has been ${action}d.`,
           ephemeral: true,
           components: [],
