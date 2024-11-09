@@ -1,14 +1,15 @@
-import {
+import type {
   ApplicationCommand,
   ApplicationCommandDataResolvable,
   ApplicationCommandOption,
   ApplicationCommandOptionData,
   Client,
-  ClientApplication,
+  ClientApplication
 } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
-import type { Command } from '../../@types/global.js';
+
+import type { Command } from '../../@types/global';
 
 const commands: Command[] = [];
 const applicationCommandsArray: object[] = [];
@@ -41,13 +42,13 @@ export default async (
         name: commandName,
         handler: commandHandler,
         description: commandDescription,
-        options: commandHandler.options || [],
+        options: commandHandler.options || []
       });
 
       applicationCommandsArray.push({
         name: commandName,
         description: commandDescription,
-        options: commandHandler.options || [],
+        options: commandHandler.options || []
       });
 
       const fetchedCommand = fetchedCommands.find(
@@ -77,7 +78,7 @@ export default async (
         const normalizeOptions = (options: ApplicationCommandOption[]) => {
           return (
             options
-              // Filter out only options that have a 'required' property, excluding ApplicationCommandSubGroup
+            // Filter out only options that have a 'required' property, excluding ApplicationCommandSubGroup
               .filter((option): option is ApplicationCommandOptionData => {
                 return (
                   'required' in option && typeof option.required === 'boolean'
@@ -87,7 +88,7 @@ export default async (
                 name: option.name,
                 description: option.description,
                 type: option.type,
-                required: (option as any).required, // TypeScript now knows `required` is valid here
+                required: 'required' in option ? option.required : false
               }))
               .sort((a, b) => a.name.localeCompare(b.name))
           );

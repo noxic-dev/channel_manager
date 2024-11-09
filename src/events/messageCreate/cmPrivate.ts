@@ -1,20 +1,19 @@
+import * as config from '@config';
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonInteraction,
+  type ButtonInteraction,
   ButtonStyle,
   EmbedBuilder,
-  Message,
-  MessageComponentInteraction,
-  TextChannel,
+  type Message,
+  TextChannel
 } from 'discord.js';
-import * as config from '@config';
+
 export default async (message: Message) => {
   if (!(message.channel instanceof TextChannel)) return;
   if (!message.guild) return;
 
   const ownerId = config.ownerId;
-  const owner = await message.guild.members.fetch(ownerId);
   const args = message.content.split(' ');
   let prefix;
   if (message.client.user.id !== '1303334967949922396') prefix = '.cm';
@@ -74,25 +73,25 @@ export default async (message: Message) => {
           .setDescription(`\`\`\`js\n${originalCode}\n\`\`\``)
           .addFields({
             name: 'Console Output',
-            value: `\`\`\`js\n${finalConsoleOutput.slice(0, 2000)}\n\`\`\``,
+            value: `\`\`\`js\n${finalConsoleOutput.slice(0, 2_000)}\n\`\`\``
           })
           .setColor('Green');
         botResponse = await message.channel.send({ embeds: [embed] });
         setTimeout(() => {
           message.delete();
         }, 500);
-      } catch (error: Error | any) {
+      } catch (error: unknown) {
         console.log = originalConsoleLog;
         message.react('❌');
 
         const errorEmbed = new EmbedBuilder()
           .setTitle('Eval Failed')
           .setDescription(
-            `\`\`\`js\n${error.toString().slice(0, 2000)}\n\`\`\``
+            `\`\`\`js\n${`${error}`.slice(0, 2_000)}\n\`\`\``
           )
           .setColor('Red');
         botResponse = await message.channel.send({
-          embeds: [errorEmbed],
+          embeds: [errorEmbed]
         });
         setTimeout(() => {
           message.delete();
@@ -111,7 +110,7 @@ export default async (message: Message) => {
 
         const collector = message.createMessageComponentCollector({
           filter: (i) => i.customId.startsWith('DeleteEval-'),
-          time: 60000,
+          time: 60_000
         });
 
         collector.on('collect', async (i: ButtonInteraction<'cached'>) => {
