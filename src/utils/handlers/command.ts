@@ -26,14 +26,12 @@ export default async (
     if (file.endsWith('.ts') || file.endsWith('.js')) {
       const commandHandler = (await import(path.join(commandDir, file)))
         .default;
-      console.log(path.join(commandDir, file));
-      console.log(commandHandler.permissions);
-
       const commandName = file.split('.')[0];
       const commandDescription =
         `A command with perms:` +
+          ' ' +
           commandHandler.permissions
-            .toString()
+            ?.toString()
             .replace('[', '')
             .replace(']', '')
             .replace('"', '')

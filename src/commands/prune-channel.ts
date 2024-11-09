@@ -5,24 +5,21 @@ import {
   ButtonStyle,
   type ChatInputCommandInteraction,
   EmbedBuilder,
-  TextChannel
+  TextChannel,
 } from 'discord.js';
 
 export default {
   permissions: ['ManageChannels'],
-  callback: (
-    interaction: ChatInputCommandInteraction,
-    channel: TextChannel
-  ) => {
+  callback: (interaction: ChatInputCommandInteraction) => {
+    const channel = interaction.channel as TextChannel;
     const isEnabledInGuild = true;
-    if (!isEnabledInGuild) throw new Error('This command is disabled in this guild.');
+    if (!isEnabledInGuild)
+      throw new Error('This command is disabled in this guild.');
 
     const channelPosition = channel.position;
-    console.log(channelPosition);
+    console.log('Channel pos: ', channelPosition);
     if (isNaN(channelPosition))
-      throw new Error(
-        'This channel does not have a position in the category!'
-      );
+      throw new Error('This channel does not have a position in the category!');
     const pruneEmbed = new EmbedBuilder()
       .setColor('Blurple') // Blurple color
       .setTitle('Warning: Pruning Channel')
@@ -32,10 +29,10 @@ export default {
       .addFields({
         name: 'Effects:',
         value:
-            '• **Delete all webhooks** associated with the current channel\n• **Change the Channel ID**, affecting any references to the original ID\n-# We are not liable for any actions that may or may not happen by using this command!'
+          '• **Delete all webhooks** associated with the current channel\n• **Change the Channel ID**, affecting any references to the original ID\n-# We are not liable for any actions that may or may not happen by using this command!',
       })
       .setFooter({
-        text: 'Consider these changes before proceeding with channel pruning.'
+        text: 'Consider these changes before proceeding with channel pruning.',
       });
 
     const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -52,14 +49,14 @@ export default {
     interaction.reply({
       embeds: [pruneEmbed],
       components: [buttonRow],
-      ephemeral: true
+      ephemeral: true,
     });
 
     const collector = (
       interaction.channel as TextChannel
     )?.createMessageComponentCollector({
       filter: (i) => i.isButton() && i.user.id === interaction.user.id,
-      time: 15_000
+      time: 15_000,
     });
 
     if (!collector) throw new Error('Collector could not be created.');
@@ -69,7 +66,7 @@ export default {
         await i.update({
           content: 'Canceled!',
           embeds: [],
-          components: []
+          components: [],
         });
         collector.stop();
       } else if (i.customId === 'confirm_prune') {
@@ -81,29 +78,29 @@ export default {
             {
               name: 'Add ChannelManager to Your Server | ',
               value:
-                  '[Click here to add ChannelManager](https://top.gg/bot/1211346964554186842) | ',
-              inline: true
+                '[Click here to add ChannelManager](https://top.gg/bot/1211346964554186842) | ',
+              inline: true,
             },
             {
               name: 'Vote for ChannelManager',
               value:
-                  '[Click here to vote](https://top.gg/bot/1211346964554186842/vote)',
-              inline: true
+                '[Click here to vote](https://top.gg/bot/1211346964554186842/vote)',
+              inline: true,
             }
           )
           .setFooter({ text: 'ChannelManager' })
           .setTimestamp(new Date());
 
-        if (!(i.channel instanceof TextChannel)) throw new Error('This command only works in text channels.');
+        if (!(i.channel instanceof TextChannel))
+          throw new Error('This command only works in text channels.');
 
         const newChannel = await i.channel.clone();
         await newChannel.setPosition(i.channel.position);
         await newChannel.send({
-          embeds: [channelPrunedEmbed]
+          embeds: [channelPrunedEmbed],
         });
         await i.channel.delete();
-
       }
     });
-  }
+  },
 };

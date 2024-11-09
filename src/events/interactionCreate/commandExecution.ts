@@ -1,7 +1,7 @@
 import type {
   ChatInputCommandInteraction,
   GuildMember,
-  PermissionResolvable
+  PermissionResolvable,
 } from 'discord.js';
 
 import config from '../../../config.json';
@@ -12,56 +12,58 @@ export default async (interaction: ChatInputCommandInteraction) => {
   if (!interaction.guild) {
     return interaction.reply({
       content: 'This command can only be used in a server.',
-      ephemeral: true
+      ephemeral: true,
     });
   }
 
   if (!interaction.member) return;
   if (!commands) return;
 
-  const commandHandler = commands.find((c) => c.name === interaction.commandName)?.handler;
+  const commandHandler = commands.find(
+    (c) => c.name === interaction.commandName
+  )?.handler;
   if (!commandHandler) return;
 
-  if (
-    !commandHandler.permissions.every((permission: PermissionResolvable) =>
-      (interaction.member as GuildMember).permissions.has(permission)
-    )
-  ) {
-    return interaction.reply({
-      content: `
-- **Error:** \`You're missing vital permissions to use this command!\` 
-- *Required permissions:* **${commandHandler.permissions.join(', ')}**`,
-      ephemeral: true
-    });
-  }
-
-  if (
-    !commandHandler.permissions.every((permission: PermissionResolvable) =>
-      (interaction.member as GuildMember).permissions.has(
-        permission as PermissionResolvable
+  if (commandHandler.permissions) {
+    if (
+      !commandHandler.permissions?.every((permission: PermissionResolvable) =>
+        (interaction.member as GuildMember).permissions.has(permission)
       )
-    )
-  ) {
-    return interaction.reply({
-      content: `
-  - **Error:** \`I'm missing vital permissions to use this command!\` 
+    ) {
+      return interaction.reply({
+        content: `
+  - **Error:** \`You're missing vital permissions to use this command!\` 
   - *Required permissions:* **${commandHandler.permissions.join(', ')}**`,
-      ephemeral: true
-    });
+        ephemeral: true,
+      });
+    }
+
+    if (
+      !commandHandler.permissions?.every((permission: PermissionResolvable) =>
+        (interaction.member as GuildMember).permissions.has(
+          permission as PermissionResolvable
+        )
+      )
+    ) {
+      return interaction.reply({
+        content: `
+    - **Error:** \`I'm missing vital permissions to use this command!\` 
+    - *Required permissions:* **${commandHandler.permissions.join(', ')}**`,
+        ephemeral: true,
+      });
+    }
   }
 
   try {
-    await commandHandler.callback(
-      interaction,
-      interaction.guild,
-      interaction.channel,
-      config
-    );
+    await commandHandler.callback(interaction, config);
   } catch (e: unknown) {
     await interaction.reply({
-      content: `Oh no.. An error has occurred. Please try again later! \n\n\`${`${e}`.slice(0, 50)}\``,
-      ephemeral: true
+      content: `Oh no.. An error has occurred. Please try again later! \n\n\`${`${e}`.slice(
+        0,
+        50
+      )}\``,
+      ephemeral: true,
     });
-    console.error('Error executing command:', e); // Log the full error for debugging
+    console.error('Error executing command:', e);
   }
 };

@@ -1,6 +1,6 @@
 import loadCommands from '@/utils/handlers/command';
 import Table from 'cli-table3';
-import type { Client } from 'discord.js';
+import { ActivityType, type Client } from 'discord.js';
 import path from 'path';
 
 let commands: Command[] = [];
@@ -21,5 +21,14 @@ export default async (client: Client) => {
   });
   console.log(commandsTable.toString());
   console.timeEnd('Startup');
+
+  client.user?.setPresence({
+    activities: [
+      {
+        name: '/info',
+        type: ActivityType.Watching,
+      },
+    ],
+  });
 };
 export { commands };
