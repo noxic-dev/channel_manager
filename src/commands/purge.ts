@@ -1,11 +1,11 @@
-import type { ChatInputCommandInteraction, TextChannel } from 'discord.js';
+import { ApplicationCommandOptionType, type ChatInputCommandInteraction, type TextChannel } from 'discord.js';
 
 export default {
   options: [
     {
       name: 'amount',
       description: 'The amount of messages to delete',
-      type: 10,
+      type: ApplicationCommandOptionType.Number,
       required: true
     }
   ],

@@ -1,12 +1,12 @@
 import { startupTime } from '@/types/../source';
-import type { ChatInputCommandInteraction } from 'discord.js';
+import { ApplicationCommandOptionType, type ChatInputCommandInteraction } from 'discord.js';
 
 export default {
   options: [
     {
       name: 'user',
       description: 'The user to ping',
-      type: 3,
+      type: ApplicationCommandOptionType.String,
       required: false
     }
   ],

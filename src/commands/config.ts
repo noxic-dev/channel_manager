@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
   type ChatInputCommandInteraction,
@@ -52,7 +53,7 @@ export default {
     {
       name: 'type',
       description: 'What type of config to edit',
-      type: 3,
+      type: ApplicationCommandOptionType.String,
       required: true,
       choices: [
         {
