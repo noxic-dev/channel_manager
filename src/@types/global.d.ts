@@ -19,4 +19,12 @@ declare global {
   }) => Promise<void>;
 }
 
-export type { Command, CommandCallback };
+interface Feature {
+  name: string;
+  machineName: string;
+  description: string;
+  permissions: string;
+  currentState: 'Enabled' | 'Disabled';
+}
+
+export type { Command, CommandCallback, Feature };

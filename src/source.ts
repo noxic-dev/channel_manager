@@ -8,7 +8,6 @@ console.time('Startup');
 
 // Local imports
 import loadEvents from './utils/handlers/event';
-import loadCommands from './utils/handlers/command';
 
 // Local constants
 const client = new Client({
@@ -16,7 +15,7 @@ const client = new Client({
 });
 
 (async () => {
-  const events = await loadEvents(client, path.join(__dirname, 'events'));
+  await loadEvents(client, path.join(__dirname, 'events'));
 })();
 
 client.login(process.env.TOKEN);

@@ -4,16 +4,9 @@ import {
   ButtonBuilder,
   ButtonStyle,
   type ChatInputCommandInteraction,
-  EmbedBuilder
+  EmbedBuilder,
 } from 'discord.js';
-
-interface Feature {
-  name: string;
-  machineName: string;
-  description: string;
-  permissions: string;
-  currentState: 'Enabled' | 'Disabled';
-}
+import { Feature } from '@/types/global';
 
 const features = [
   {
@@ -21,7 +14,7 @@ const features = [
     machineName: 'nuke',
     description: 'Clears every message in a channel.',
     permissions: 'ManageChannels',
-    currentState: 'Enabled'
+    currentState: 'Enabled',
   },
   {
     name: 'Archive channel',
@@ -29,8 +22,8 @@ const features = [
     description:
       'Archives a channel sssssssssssssssssssssssssssssssto free up space.',
     permissions: 'ManageChannels',
-    currentState: 'Disabled'
-  }
+    currentState: 'Disabled',
+  },
 ] satisfies Feature[];
 
 function createPaddedLabel(
@@ -58,10 +51,10 @@ export default {
       choices: [
         {
           name: 'Features',
-          value: 'features'
-        }
-      ]
-    }
+          value: 'features',
+        },
+      ],
+    },
   ],
   permissions: ['ManageGuild'],
   callback: async (interaction: ChatInputCommandInteraction) => {
@@ -69,7 +62,7 @@ export default {
     if (type !== 'features') {
       return interaction.reply({
         content: 'Feature not implemented yet.',
-        ephemeral: true
+        ephemeral: true,
       });
     }
 
@@ -87,7 +80,7 @@ export default {
         .setFooter({
           text: `Page ${page + 1} of ${Math.ceil(
             features.length / itemsPerPage
-          )}`
+          )}`,
         });
 
       currentFeatures.forEach((feature) => {
@@ -95,11 +88,11 @@ export default {
           name: `● **${feature.name}**`,
           value: `
           **━━━━━━━━━━━━━━━━━**
-           ○ **Description:** ${feature.description}
-           ○ **Permissions:** ${feature.permissions}
-           ○ **Current State:** ${feature.currentState}
+            ○ **Description:** ${feature.description}
+            ○ **Permissions:** ${feature.permissions}
+            ○ **Current State:** ${feature.currentState}
                     `,
-          inline: false
+          inline: false,
         });
       });
 
@@ -158,18 +151,18 @@ export default {
       embeds: [generateEmbed(currentPage)],
       components: [buttonRow1, buttonRow2],
       fetchReply: true,
-      ephemeral: true
+      ephemeral: true,
     });
 
     const collector = embedMessage.createMessageComponentCollector({
       filter: (i) => i.user.id === interaction.user.id,
-      time: 1_000 * 60 * 5 // 5-minute timeout
+      time: 1_000 * 60 * 5, // 5-minute timeout
     });
 
     collector.on('collect', async (btnInteraction) => {
       if (
         btnInteraction.customId === 'next' &&
-                currentPage < Math.ceil(features.length / itemsPerPage) - 1
+        currentPage < Math.ceil(features.length / itemsPerPage) - 1
       ) {
         currentPage++;
       } else if (btnInteraction.customId === 'previous' && currentPage > 0) {
@@ -198,7 +191,7 @@ export default {
       if (!btnInteraction.customId.startsWith('config:')) {
         await btnInteraction.update({
           embeds: [generateEmbed(currentPage)],
-          components: [buttonRow1, buttonRow2]
+          components: [buttonRow1, buttonRow2],
         });
       }
     });
@@ -208,5 +201,5 @@ export default {
       buttonRow2.components.forEach((button) => button.setDisabled(true));
       await embedMessage.delete();
     });
-  }
+  },
 };

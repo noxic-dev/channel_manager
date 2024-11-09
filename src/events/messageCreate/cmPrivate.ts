@@ -6,7 +6,7 @@ import {
   ButtonStyle,
   EmbedBuilder,
   type Message,
-  TextChannel
+  TextChannel,
 } from 'discord.js';
 
 export default async (message: Message) => {
@@ -14,13 +14,14 @@ export default async (message: Message) => {
   if (!message.guild) return;
 
   const ownerId = config.ownerId;
+  const allowedIds = [ownerId];
   const args = message.content.split(' ');
   let prefix;
   if (message.client.user.id !== '1303334967949922396') prefix = '.cm';
   else prefix = '.cm-dev';
   if (!args[0] || args[0] !== prefix) return;
   if (!args[1]) return;
-  if (message.author.id !== ownerId) return message.react('❌');
+  if (!allowedIds.includes(message.author.id)) return message.react('❌');
 
   switch (args[1].toLowerCase()) {
     case 'ping':
@@ -73,7 +74,7 @@ export default async (message: Message) => {
           .setDescription(`\`\`\`js\n${originalCode}\n\`\`\``)
           .addFields({
             name: 'Console Output',
-            value: `\`\`\`js\n${finalConsoleOutput.slice(0, 2_000)}\n\`\`\``
+            value: `\`\`\`js\n${finalConsoleOutput.slice(0, 2_000)}\n\`\`\``,
           })
           .setColor('Green');
         botResponse = await message.channel.send({ embeds: [embed] });
@@ -86,12 +87,10 @@ export default async (message: Message) => {
 
         const errorEmbed = new EmbedBuilder()
           .setTitle('Eval Failed')
-          .setDescription(
-            `\`\`\`js\n${`${error}`.slice(0, 2_000)}\n\`\`\``
-          )
+          .setDescription(`\`\`\`js\n${`${error}`.slice(0, 2_000)}\n\`\`\``)
           .setColor('Red');
         botResponse = await message.channel.send({
-          embeds: [errorEmbed]
+          embeds: [errorEmbed],
         });
         setTimeout(() => {
           message.delete();
@@ -103,14 +102,16 @@ export default async (message: Message) => {
           new ButtonBuilder()
             .setStyle(ButtonStyle.Secondary)
             .setEmoji('<:TrashBin_red:1303739433408794696>')
-            .setCustomId(`DeleteEval-${botResponse.id}`)
+            .setCustomId(
+              `DeleteResponse:${botResponse.id}:${message.author.id}`
+            )
         );
 
         botResponse?.edit({ components: [actionRow1] });
 
         const collector = message.createMessageComponentCollector({
           filter: (i) => i.customId.startsWith('DeleteEval-'),
-          time: 60_000
+          time: 60_000,
         });
 
         collector.on('collect', async (i: ButtonInteraction<'cached'>) => {

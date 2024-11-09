@@ -8,7 +8,7 @@ let commands: Command[] = [];
 const commandsTable = new Table({
   head: ['Command', 'Success'],
   style: { head: ['green'] },
-  colWidths: [15, 15]
+  colWidths: [15, 15],
 });
 
 export default async (client: Client) => {

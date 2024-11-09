@@ -13,7 +13,7 @@
       "@/utils/*": ["./utils/*"],
       "@/commands/*": ["./commands/*"],
       "@/events/*": ["./events/*"],
-      "@/types/*": ["./types/*"],
+      "@/types/*": ["./@types/*"],
       "@config": ["../config.json"]
     }
   },

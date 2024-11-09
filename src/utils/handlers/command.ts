@@ -4,7 +4,7 @@ import type {
   ApplicationCommandOption,
   ApplicationCommandOptionData,
   Client,
-  ClientApplication
+  ClientApplication,
 } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
@@ -31,24 +31,25 @@ export default async (
 
       const commandName = file.split('.')[0];
       const commandDescription =
-        `A command with perms: ${commandHandler.permissions
-          .toString()
-          .replace('[', '')
-          .replace(']', '')
-          .replace('"', '')
-          .replace(',', ', ')}` || 'No perms';
+        `A command with perms:` +
+          commandHandler.permissions
+            .toString()
+            .replace('[', '')
+            .replace(']', '')
+            .replace('"', '')
+            .replace(',', ', ') || 'No perms';
 
       commands.push({
         name: commandName,
         handler: commandHandler,
         description: commandDescription,
-        options: commandHandler.options || []
+        options: commandHandler.options || [],
       });
 
       applicationCommandsArray.push({
         name: commandName,
         description: commandDescription,
-        options: commandHandler.options || []
+        options: commandHandler.options || [],
       });
 
       const fetchedCommand = fetchedCommands.find(
@@ -78,7 +79,7 @@ export default async (
         const normalizeOptions = (options: ApplicationCommandOption[]) => {
           return (
             options
-            // Filter out only options that have a 'required' property, excluding ApplicationCommandSubGroup
+              // Filter out only options that have a 'required' property, excluding ApplicationCommandSubGroup
               .filter((option): option is ApplicationCommandOptionData => {
                 return (
                   'required' in option && typeof option.required === 'boolean'
@@ -88,7 +89,7 @@ export default async (
                 name: option.name,
                 description: option.description,
                 type: option.type,
-                required: 'required' in option ? option.required : false
+                required: 'required' in option ? option.required : false,
               }))
               .sort((a, b) => a.name.localeCompare(b.name))
           );
