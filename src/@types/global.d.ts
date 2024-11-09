@@ -1,9 +1,11 @@
-import { Interaction } from "discord.js"; // Make sure to import necessary types
-import type { Guild, Channel } from "discord.js"; // Import specific types as needed
+import type { Channel, Guild, Interaction } from 'discord.js';
+
+// Make sure to import necessary types
 declare global {
   interface Command {
     name: string;
     handler: any;
+    handler: unknown;
     permissions?: string[];
     description: string;
     options?: object[];
@@ -11,13 +13,12 @@ declare global {
   // src/types/CommandCallback.ts
 
   interface CommandCallback {
-    (
+    type CommandCallback = (
       interaction: Interaction,
       guild: Guild | null,
       channel: Channel | null,
-      config: any
-    ): Promise<void>;
-  }
+      config: Record<string, unknown>
+    ) => Promise<void>;
 }
 
-export { Command, CommandCallback };
+export type { Command, CommandCallback };
