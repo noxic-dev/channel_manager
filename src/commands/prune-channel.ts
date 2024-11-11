@@ -6,25 +6,26 @@ import {
   type ChatInputCommandInteraction,
   EmbedBuilder,
   TextChannel,
-} from 'discord.js';
+} from 'discord.js'
 
 export default {
   permissions: ['ManageChannels'],
-  callback: (interaction: ChatInputCommandInteraction) => {
-    const channel = interaction.channel as TextChannel;
-    const isEnabledInGuild = true;
+  callback: (interaction: ChatInputCommandInteraction): void => {
+    const channel = interaction.channel as TextChannel
+    const isEnabledInGuild = true
     if (!isEnabledInGuild)
-      throw new Error('This command is disabled in this guild.');
+      throw new Error('This command is disabled in this guild.')
 
-    const channelPosition = channel.position;
-    console.log('Channel pos: ', channelPosition);
+    const channelPosition = channel.position
+    console.log('Channel pos: ', channelPosition)
     if (isNaN(channelPosition))
-      throw new Error('This channel does not have a position in the category!');
+      throw new Error('This channel does not have a position in the category!')
+
     const pruneEmbed = new EmbedBuilder()
       .setColor('Blurple') // Blurple color
       .setTitle('Warning: Pruning Channel')
       .setDescription(
-        'Pruning this channel will result in **deletion of the existing channel** and creation of a **duplicate channel**. This process will:'
+        'Pruning this channel will result in **deletion of the existing channel** and creation of a **duplicate channel**. This process will:',
       )
       .addFields({
         name: 'Effects:',
@@ -33,7 +34,7 @@ export default {
       })
       .setFooter({
         text: 'Consider these changes before proceeding with channel pruning.',
-      });
+      })
 
     const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
@@ -43,23 +44,23 @@ export default {
       new ButtonBuilder()
         .setStyle(ButtonStyle.Danger)
         .setLabel('Confirm')
-        .setCustomId('confirm_prune')
-    );
+        .setCustomId('confirm_prune'),
+    )
 
     interaction.reply({
       embeds: [pruneEmbed],
       components: [buttonRow],
       ephemeral: true,
-    });
+    })
 
     const collector = (
       interaction.channel as TextChannel
-    )?.createMessageComponentCollector({
-      filter: (i) => i.isButton() && i.user.id === interaction.user.id,
+    ).createMessageComponentCollector({
+      filter: i => i.isButton() && i.user.id === interaction.user.id,
       time: 15_000,
-    });
+    })
 
-    if (!collector) throw new Error('Collector could not be created.');
+    if (!collector) throw new Error('Collector could not be created.')
 
     collector.on('collect', async (i: ButtonInteraction<'cached'>) => {
       if (i.customId === 'cancel_prune') {
@@ -67,9 +68,10 @@ export default {
           content: 'Canceled!',
           embeds: [],
           components: [],
-        });
-        collector.stop();
-      } else if (i.customId === 'confirm_prune') {
+        })
+        collector.stop()
+      }
+      else if (i.customId === 'confirm_prune') {
         const channelPrunedEmbed = new EmbedBuilder()
           .setColor('DarkButNotBlack')
           .setDescription('Channel has been successfully nuked!')
@@ -86,21 +88,21 @@ export default {
               value:
                 '[Click here to vote](https://top.gg/bot/1211346964554186842/vote)',
               inline: true,
-            }
+            },
           )
           .setFooter({ text: 'ChannelManager' })
-          .setTimestamp(new Date());
+          .setTimestamp(new Date())
 
         if (!(i.channel instanceof TextChannel))
-          throw new Error('This command only works in text channels.');
+          throw new Error('This command only works in text channels.')
 
-        const newChannel = await i.channel.clone();
-        await newChannel.setPosition(i.channel.position);
+        const newChannel = await i.channel.clone()
+        await newChannel.setPosition(i.channel.position)
         await newChannel.send({
           embeds: [channelPrunedEmbed],
-        });
-        await i.channel.delete();
+        })
+        await i.channel.delete()
       }
-    });
+    })
   },
-};
+}

@@ -5,8 +5,8 @@ import {
   ButtonStyle,
   type ChatInputCommandInteraction,
   EmbedBuilder,
-} from 'discord.js';
-import { Feature } from '@/types/global';
+} from 'discord.js'
+import type { Feature } from '@/types/global'
 
 const features = [
   {
@@ -24,21 +24,22 @@ const features = [
     permissions: 'ManageChannels',
     currentState: 'Disabled',
   },
-] satisfies Feature[];
+] satisfies Feature[]
 
 function createPaddedLabel(
   label: string,
   embedLength: number,
-  maxLabelLength: number
-) {
-  const basePadding = 4;
+  maxLabelLength: number,
+): string {
+  const basePadding = 4
   const paddingAmount = Math.max(
     basePadding,
     Math.floor(embedLength / 50),
-    Math.ceil(maxLabelLength / 10)
-  );
-  const padding = ' '.repeat(paddingAmount);
-  return `.${padding}${label}${padding}.`;
+    Math.ceil(maxLabelLength / 10),
+  )
+  const padding = ' '.repeat(paddingAmount)
+
+  return `.${padding}${label}${padding}.`
 }
 
 export default {
@@ -57,31 +58,33 @@ export default {
     },
   ],
   permissions: ['ManageGuild'],
-  callback: async (interaction: ChatInputCommandInteraction) => {
-    const type = interaction.options.getString('type');
+  callback: async (interaction: ChatInputCommandInteraction): Promise<void> => {
+    const type = interaction.options.getString('type')
     if (type !== 'features') {
-      return interaction.reply({
+      await interaction.reply({
         content: 'Feature not implemented yet.',
         ephemeral: true,
-      });
+      })
+
+      return
     }
 
-    const itemsPerPage = 1;
-    let currentPage = 0;
+    const itemsPerPage = 1
+    let currentPage = 0
 
-    const generateEmbed = (page: number) => {
-      const start = page * itemsPerPage;
-      const end = start + itemsPerPage;
-      const currentFeatures = features.slice(start, end);
+    const generateEmbed = (page: number): EmbedBuilder => {
+      const start = page * itemsPerPage
+      const end = start + itemsPerPage
+      const currentFeatures = features.slice(start, end)
 
       const embed = new EmbedBuilder()
         .setColor('Blurple')
         .setTitle('Config: Features')
         .setFooter({
           text: `Page ${page + 1} of ${Math.ceil(
-            features.length / itemsPerPage
+            features.length / itemsPerPage,
           )}`,
-        });
+        })
 
       currentFeatures.forEach((feature) => {
         embed.addFields({
@@ -93,44 +96,48 @@ export default {
             ○ **Current State:** ${feature.currentState}
                     `,
           inline: false,
-        });
-      });
+        })
+      })
 
-      return embed;
-    };
+      return embed
+    }
 
-    let embedContentLength = 0;
-    let maxLabelLength = 0;
-    const updateEmbedContentLength = () => {
-      const embed = generateEmbed(currentPage);
-      embedContentLength =
-        embed.data?.fields?.reduce(
+    let embedContentLength = 0
+    let maxLabelLength = 0
+    const updateEmbedContentLength = (): void => {
+      const embed = generateEmbed(currentPage)
+      embedContentLength = embed.data.fields
+        ? embed.data.fields.reduce(
           (acc, field) => acc + field.name.length + field.value.length,
-          0
-        ) || 0;
-      maxLabelLength = Math.max(
-        ...features.map((feature) => feature.name.length)
-      );
-    };
+          0,
+        )
+        : 0
+      maxLabelLength
+        = features.length > 0
+          ? Math.max(...features.map(feature => feature.name.length))
+          : 0
 
-    updateEmbedContentLength();
+      return
+    }
 
-    const currentFeature = features[currentPage];
+    updateEmbedContentLength()
+
+    const currentFeature = features[currentPage]
 
     const buttonRow1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(`config:enable:feature:${currentFeature.machineName}`)
         .setLabel(
-          createPaddedLabel('Enable', embedContentLength, maxLabelLength)
+          createPaddedLabel('Enable', embedContentLength, maxLabelLength),
         )
         .setStyle(ButtonStyle.Success),
       new ButtonBuilder()
         .setCustomId(`config:disable:feature:${currentFeature.machineName}`)
         .setLabel(
-          createPaddedLabel('Disable', embedContentLength, maxLabelLength)
+          createPaddedLabel('Disable', embedContentLength, maxLabelLength),
         )
-        .setStyle(ButtonStyle.Danger)
-    );
+        .setStyle(ButtonStyle.Danger),
+    )
 
     const buttonRow2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
@@ -143,63 +150,64 @@ export default {
         .setLabel('Next')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(
-          currentPage === Math.ceil(features.length / itemsPerPage) - 1
-        )
-    );
+          currentPage === Math.ceil(features.length / itemsPerPage) - 1,
+        ),
+    )
 
     const embedMessage = await interaction.reply({
       embeds: [generateEmbed(currentPage)],
       components: [buttonRow1, buttonRow2],
       fetchReply: true,
       ephemeral: true,
-    });
+    })
 
     const collector = embedMessage.createMessageComponentCollector({
-      filter: (i) => i.user.id === interaction.user.id,
+      filter: i => i.user.id === interaction.user.id,
       time: 1_000 * 60 * 5, // 5-minute timeout
-    });
+    })
 
     collector.on('collect', async (btnInteraction) => {
       if (
-        btnInteraction.customId === 'next' &&
-        currentPage < Math.ceil(features.length / itemsPerPage) - 1
+        btnInteraction.customId === 'next'
+        && currentPage < Math.ceil(features.length / itemsPerPage) - 1
       ) {
-        currentPage++;
-      } else if (btnInteraction.customId === 'previous' && currentPage > 0) {
-        currentPage--;
+        currentPage++
+      }
+      else if (btnInteraction.customId === 'previous' && currentPage > 0) {
+        currentPage--
       }
 
-      updateEmbedContentLength();
+      updateEmbedContentLength()
 
-      const currentFeature = features[currentPage];
+      const currentFeature = features[currentPage]
 
       buttonRow1.components[0]
         .setCustomId(`config:enable:feature:${currentFeature.machineName}`)
         .setLabel(
-          createPaddedLabel('Enable', embedContentLength, maxLabelLength)
-        );
+          createPaddedLabel('Enable', embedContentLength, maxLabelLength),
+        )
       buttonRow1.components[1]
         .setCustomId(`config:disable:feature:${currentFeature.machineName}`)
         .setLabel(
-          createPaddedLabel('Disable', embedContentLength, maxLabelLength)
-        );
-      buttonRow2.components[0].setDisabled(currentPage === 0);
+          createPaddedLabel('Disable', embedContentLength, maxLabelLength),
+        )
+      buttonRow2.components[0].setDisabled(currentPage === 0)
       buttonRow2.components[1].setDisabled(
-        currentPage === Math.ceil(features.length / itemsPerPage) - 1
-      );
+        currentPage === Math.ceil(features.length / itemsPerPage) - 1,
+      )
 
       if (!btnInteraction.customId.startsWith('config:')) {
         await btnInteraction.update({
           embeds: [generateEmbed(currentPage)],
           components: [buttonRow1, buttonRow2],
-        });
+        })
       }
-    });
+    })
 
     collector.on('end', async () => {
-      buttonRow1.components.forEach((button) => button.setDisabled(true));
-      buttonRow2.components.forEach((button) => button.setDisabled(true));
-      await embedMessage.delete();
-    });
+      buttonRow1.components.forEach(button => button.setDisabled(true))
+      buttonRow2.components.forEach(button => button.setDisabled(true))
+      await embedMessage.delete()
+    })
   },
-};
+}

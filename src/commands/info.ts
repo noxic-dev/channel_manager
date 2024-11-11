@@ -1,10 +1,15 @@
-import { ChatInputCommandInteraction, EmbedBuilder, Guild } from 'discord.js';
+import {
+  EmbedBuilder,
+  Guild,
+  type ChatInputCommandInteraction,
+} from 'discord.js'
 
 export default {
-  callback: async (interaction: ChatInputCommandInteraction) => {
-    if (!interaction.guild || !(interaction.guild instanceof Guild))
-      throw new Error('This command can only be used within a guild!');
-    const guild = interaction.guild;
+  callback: (interaction: ChatInputCommandInteraction): void => {
+    if (!(interaction.guild instanceof Guild))
+      throw new Error('This command can only be used within a guild!')
+
+    const guild = interaction.guild
 
     const embed = new EmbedBuilder()
       .setTitle('General Guild Information')
@@ -26,7 +31,7 @@ export default {
         {
           name: 'Days in Guild',
           value: `\`${Math.floor(
-            (Date.now() - guild.joinedTimestamp) / (1000 * 60 * 60 * 24)
+            (Date.now() - guild.joinedTimestamp) / (1000 * 60 * 60 * 24),
           )} days\``,
           inline: true,
         },
@@ -34,12 +39,12 @@ export default {
           name: 'Invite to Add the Bot',
           value:
             '[Click here to add the bot!](https://your-bot-invite-link.com)',
-        }
+        },
       )
       .setFooter({ text: 'Thanks for having me in your server!' })
-      .setTimestamp();
+      .setTimestamp()
 
     // Example usage: reply with the embed
-    interaction.reply({ embeds: [embed] });
+    interaction.reply({ embeds: [embed] })
   },
-};
+}

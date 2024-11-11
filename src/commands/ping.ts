@@ -1,5 +1,8 @@
-import { startupTime } from '@/types/../source';
-import { ApplicationCommandOptionType, type ChatInputCommandInteraction } from 'discord.js';
+import { startupTime } from '@/types/../source'
+import {
+  ApplicationCommandOptionType,
+  type ChatInputCommandInteraction,
+} from 'discord.js'
 
 export default {
   options: [
@@ -7,14 +10,12 @@ export default {
       name: 'user',
       description: 'The user to ping',
       type: ApplicationCommandOptionType.String,
-      required: false
-    }
+      required: false,
+    },
   ],
   permissions: ['SendMessages'],
 
-  callback: async (
-    interaction: ChatInputCommandInteraction
-  ) => {
-    return interaction.reply({ content: startupTime, ephemeral: true });
-  }
-};
+  callback: (interaction: ChatInputCommandInteraction): unknown => {
+    return interaction.reply({ content: startupTime, ephemeral: true })
+  },
+}
