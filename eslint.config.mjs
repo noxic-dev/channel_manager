@@ -24,7 +24,7 @@ export default [
     rules: {
       // --- Stylistic Defaults ---
       ...stylistic.configs['recommended-flat'].rules,
-      // --- Enforce readability and maintainability ---
+      // --- Enforce readability and maintainability jS---
       'max-len': ['error', { code: 350, ignoreUrls: true }], // Limit line length for readability
       'no-multiple-empty-lines': ['error', { max: 1 }], // Avoid excessive empty lines
       'newline-before-return': 'error', // Add newline before return statements
