@@ -27,15 +27,18 @@ export default async (
       const commandHandler = (await import(path.join(commandDir, file)))
         .default;
       const commandName = file.split('.')[0];
-      const commandDescription =
-        `A command with perms:` +
-          ' ' +
-          commandHandler.permissions
-            ?.toString()
-            .replace('[', '')
-            .replace(']', '')
-            .replace('"', '')
-            .replace(',', ', ') || 'No perms';
+      let commandDescription = 'A command with no perms';
+      if (commandHandler.permissions?.length > 0) {
+        commandDescription =
+          `A command with perms:` +
+            ' ' +
+            commandHandler.permissions
+              ?.toString()
+              .replace('[', '')
+              .replace(']', '')
+              .replace('"', '')
+              .replace(',', ', ') || 'No perms';
+      }
 
       commands.push({
         name: commandName,

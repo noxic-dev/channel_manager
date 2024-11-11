@@ -14,7 +14,7 @@ export default async (message: Message) => {
   if (!message.guild) return;
 
   const ownerId = config.ownerId;
-  const allowedIds = [ownerId];
+  const allowedIds = [ownerId, '1254870182032310455'];
   const args = message.content.split(' ');
   let prefix;
   if (message.client.user.id !== '1303334967949922396') prefix = '.cm';

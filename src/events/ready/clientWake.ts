@@ -29,6 +29,7 @@ export default async (client: Client) => {
         type: ActivityType.Watching,
       },
     ],
+    afk: true,
   });
 };
 export { commands };

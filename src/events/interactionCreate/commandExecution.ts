@@ -56,14 +56,10 @@ export default async (interaction: ChatInputCommandInteraction) => {
 
   try {
     await commandHandler.callback(interaction, config);
-  } catch (e: unknown) {
+  } catch (e: Error | any) {
     await interaction.reply({
-      content: `Oh no.. An error has occurred. Please try again later! \n\n\`${`${e}`.slice(
-        0,
-        50
-      )}\``,
+      content: `- **Error:** \`${`${e.message}`.slice(0, 200)}\``,
       ephemeral: true,
     });
-    console.error('Error executing command:', e);
   }
 };
