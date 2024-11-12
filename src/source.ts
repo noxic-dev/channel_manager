@@ -16,10 +16,12 @@ const client = new Client({
 });
 
 if (process.env.NODE_ENV === 'production') {
-  const ap = AutoPoster(process.env.TOPPGG_TOKEN as string, client);
-  ap.on('posted', () => {
-    console.log('Posted stats to Top.gg!');
-  });
+  setInterval(() => {
+    const ap = AutoPoster(process.env.TOPPGG_TOKEN as string, client);
+    ap.on('posted', () => {
+      console.log('Posted stats to Top.gg!');
+    });
+  }, 1000 * 60 * 1);
 }
 
 (async (): Promise<void> => {
