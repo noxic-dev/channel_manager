@@ -14,7 +14,7 @@ export default {
     },
   ],
   permissions: ['ManageMessages'],
-  callback: async (interaction: ChatInputCommandInteraction) => {
+  callback: async (interaction: ChatInputCommandInteraction): Promise<void> => {
     const channel = interaction.channel as TextChannel;
     const clearAmount = interaction.options.getNumber('amount');
     if (!clearAmount) throw new Error('You must specify an amount');
