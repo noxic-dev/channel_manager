@@ -6,22 +6,45 @@ on:
       - master
 
 jobs:
-  build-and-deploy:
+  lint-and-deploy:
     runs-on: ubuntu-latest
-
-    if: ${{ !contains(github.event.head_commit.message, '[deploy ignore]') }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
       - name: Install dependencies
         run: npm install
 
+      - name: Lint Codebase
+        run: |
+          echo "Running ESLint..."
+          npx eslint . --fix || (echo "❌ Linting failed. Fix the errors and try again." && exit 1)
+
+      - name: Commit Linted Code
+        if: success()
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "fix: auto-linted code via GitHub Actions [skip ci]" || echo "No changes to commit"
+
+      - name: Push Linted Code
+        if: success()
+        run: |
+          git push origin HEAD
+
       - name: Build project
+        if: success()
         run: npm run build
 
       - name: Transfer build to VPS temporary folder
+        if: success()
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -31,6 +54,7 @@ jobs:
           target: '/home/noxic/projects/bots/channel_manager/build_temp'
 
       - name: Transfer node_modules to VPS temporary folder
+        if: success()
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -40,15 +64,17 @@ jobs:
           target: '/home/noxic/projects/bots/channel_manager/node_modules_temp'
 
       - name: Transfer other project files to VPS temporary folder (excluding src folder)
+        if: success()
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
-          source: '.' # Transfers all files
+          source: '.'
           target: '/home/noxic/projects/bots/channel_manager/temp_project'
 
       - name: Remove src folder from temp_project on VPS
+        if: success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -59,6 +85,7 @@ jobs:
             rm -rf src
 
       - name: Deploy new build, node_modules, and other files on VPS
+        if: success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -67,33 +94,20 @@ jobs:
           script: |
             cd /home/noxic/projects/bots/channel_manager
 
-            # Ensure the backup directories exist as directories
             rm -rf build_backup
-            mv build build_backup 2>/dev/null || true  # Move old build to backup if it exists
+            mv build build_backup 2>/dev/null || true
 
             rm -rf node_modules_backup
-            mv node_modules node_modules_backup 2>/dev/null || true  # Move old node_modules to backup if it exists
+            mv node_modules node_modules_backup 2>/dev/null || true
 
-            # Remove any existing build and node_modules directories to prevent nesting
             rm -rf build
             rm -rf node_modules
 
-            # Move the new build and node_modules into place
             mv build_temp build
             mv node_modules_temp node_modules
 
-            # Copy other updated files from temp_project, excluding 'src' (already removed)
             rsync -a temp_project/ ./
 
-            # Clean up the temp directory
             rm -rf temp_project
 
-            cd /home/noxic/projects/bots/channel_manager/build
-            rm -rf build
-            cd ..
-            cd node_modules
-            rm -rf node_modules
-            cd ..
-
-            # Restart the PM2 process
             pm2 restart "Bot: channelManager V2"
