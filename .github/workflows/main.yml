@@ -45,13 +45,13 @@ jobs:
           git add .
           git commit -m "fix: auto-linted code, ${original_message} [skip lint]" || echo "No changes to commit"
 
-      - name: Push Linted Code
-        if: env.skip_lint == 'false' && success()
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
-          git remote set-url origin https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
-          git push origin HEAD
+          - name: Push Linted Code
+          if: env.skip_lint == 'false' && success()
+          run: |
+            git config user.name "GitHub Actions Bot"
+            git config user.email "actions@github.com"
+            git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+            git push origin HEAD
 
       - name: Build project
         if: env.skip_lint == 'true' && success()
