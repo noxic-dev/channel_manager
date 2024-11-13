@@ -21,30 +21,41 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Check commit message for "skip lint"
+        id: check-message
+        run: |
+          if git log -1 --pretty=format:%s | grep -q "\[skip lint\]"; then
+            echo "skip_lint=true" >> $GITHUB_ENV
+          else
+            echo "skip_lint=false" >> $GITHUB_ENV
+          fi
+
       - name: Lint Codebase
+        if: env.skip_lint == 'false'
         run: |
           echo "Running ESLint..."
           npx eslint . --fix || (echo "❌ Linting failed. Fix the errors and try again." && exit 1)
 
       - name: Commit Linted Code
-        if: success()
+        if: env.skip_lint == 'false' && success()
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
+          original_message=$(git log -1 --pretty=format:%s)
           git add .
-          git commit -m "fix: auto-linted code via GitHub Actions [skip ci]" || echo "No changes to commit"
+          git commit -m "fix: auto-linted code, ${original_message} [skip lint]" || echo "No changes to commit"
 
       - name: Push Linted Code
-        if: success()
+        if: env.skip_lint == 'false' && success()
         run: |
-          git push origin HEAD
+          git push https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD
 
       - name: Build project
-        if: success()
+        if: env.skip_lint == 'true' && success()
         run: npm run build
 
       - name: Transfer build to VPS temporary folder
-        if: success()
+        if: env.skip_lint == 'true' && success()
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -54,7 +65,7 @@ jobs:
           target: '/home/noxic/projects/bots/channel_manager/build_temp'
 
       - name: Transfer node_modules to VPS temporary folder
-        if: success()
+        if: env.skip_lint == 'true' && success()
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -64,7 +75,7 @@ jobs:
           target: '/home/noxic/projects/bots/channel_manager/node_modules_temp'
 
       - name: Transfer other project files to VPS temporary folder (excluding src folder)
-        if: success()
+        if: env.skip_lint == 'true' && success()
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -74,7 +85,7 @@ jobs:
           target: '/home/noxic/projects/bots/channel_manager/temp_project'
 
       - name: Remove src folder from temp_project on VPS
-        if: success()
+        if: env.skip_lint == 'true' && success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -85,7 +96,7 @@ jobs:
             rm -rf src
 
       - name: Deploy new build, node_modules, and other files on VPS
-        if: success()
+        if: env.skip_lint == 'true' && success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -106,7 +117,7 @@ jobs:
             mv build_temp build
             mv node_modules_temp node_modules
 
-            rsync -a temp_project/ ./
+            rsync -a temp_project/ ./ 
 
             rm -rf temp_project
 
