@@ -1,30 +1,48 @@
 # Channel Manager Bot
 
-![Channel Manager Bot](https://via.placeholder.com/150) <!-- Replace with an actual logo or image -->
+![Channel Manager Bot](https://cdn.discordapp.com/icons/1304049299734134805/6492de905ea1fbba8a313f2ad4325867.webp?size=512)
 
-**Channel Manager** is a Discord bot created to enhance channel management on your server. This bot was developed in response to a request from a user who wanted specific features from a private bot I had previously created.
-
-## About This Project
-
-Channel Manager is designed to simplify the management of your Discord channels. Whether you need to create new channels, delete unused ones, or adjust permissions, this bot provides the necessary tools to streamline those tasks efficiently.
-
-### Key Features
-
-- **Channel Creation**: Quickly create new channels with simple commands.
-- **Channel Deletion**: Remove channels that are no longer needed effortlessly.
-- **Permissions Management**: Set and adjust channel permissions for various roles in your server.
-- **User-Friendly Commands**: Intuitive commands make it easy for anyone to manage channels.
-
-## Invite the Bot
-
-You can invite Channel Manager to your Discord server by clicking the link below:
-
-[Invite Channel Manager](https://top.gg/bot/1211346964554186842)
-
-## Developer
-
-This bot was created by **Noxic**. If you have any questions, suggestions, or feedback, feel free to reach out!
+**Channel Manager** is a Discord bot designed to simplify and enhance channel management for your server. Developed by a solo developer, it offers powerful tools and intuitive commands to streamline managing your server's channels.
 
 ---
 
-Thank you for considering Channel Manager for your Discord server! We hope it helps you manage your channels more effectively.
+## 🚀 About This Project
+
+The journey of **Channel Manager** began with its first iteration, **ChannelManager V1**, which was written in **JavaScript** and featured a single command: `/nuke`. This command cloned a channel and deleted the original, providing a simple yet effective solution for channel cleanup.
+
+With the release of **ChannelManager V2**, the bot has evolved into a robust, feature-rich tool. Now rewritten in **TypeScript**, it retains the core functionality of `/nuke` (renamed `/prune-channel`) while introducing new capabilities and becoming **open-source** for greater transparency.
+
+---
+
+## 🌟 Key Features
+
+- **Purge**: Use `/purge <1 - 500>` to delete messages in a channel (This does not affect the channel itself).
+- **Improved Commands**: Use `/prune-channel` (formerly `/nuke`) to safely clone and clean up channels.
+- **Open-Source**: Available for everyone to review and contribute to on GitHub.
+
+---
+
+## 📥 Invite the Bot
+
+You can invite **Channel Manager** to your Discord server using the link below:
+
+[**Invite Channel Manager**](https://top.gg/bot/1211346964554186842)
+
+---
+
+## 👨‍💻 Developer & Licensing
+
+### Developer
+
+This bot was created by **Noxic**, a dedicated solo developer committed to building tools that enhance your Discord experience. If you have questions, suggestions, or feedback, feel free to reach out!
+
+### Licensing
+
+The source code for **Channel Manager** is open for educational and non-commercial purposes. However, the following restrictions apply:
+
+1. **No Malicious Use**: The bot's source code cannot be used for any malicious activity.
+2. **No Commercialization**: The source code and bot cannot be sold, monetized, or distributed as "premium" versions in any shape or form.
+
+---
+
+Thank you for choosing **Channel Manager**! We hope it helps you manage your Discord server's channels more effectively.
