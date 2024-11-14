@@ -6,59 +6,22 @@ on:
       - master
 
 jobs:
-  lint-and-deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
+    if: ${{ !contains(github.event.head_commit.message, '[deploy ignore]') }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22'
-
       - name: Install dependencies
         run: npm install
 
-      - name: Check commit message for "skip lint"
-        id: check-message
-        run: |
-          if git log -1 --pretty=format:%s | grep -q "\[skip lint\]"; then
-            echo "skip_lint=true" >> $GITHUB_ENV
-          else
-            echo "skip_lint=false" >> $GITHUB_ENV
-          fi
-
-      - name: Lint Codebase
-        if: env.skip_lint == 'false'
-        run: |
-          echo "Running ESLint..."
-          npx eslint . --fix || (echo "❌ Linting failed. Fix the errors and try again." && exit 1)
-
-      - name: Commit Linted Code
-        if: env.skip_lint == 'false' && success()
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
-          original_message=$(git log -1 --pretty=format:%s)
-          git add .
-          git commit -m "fix: auto-linted code, ${original_message} [skip lint]" || echo "No changes to commit"
-
-      - name: Push Linted Code
-        if: env.skip_lint == 'false' && success()
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
-          git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git push origin HEAD
-
       - name: Build project
-        if: env.skip_lint == 'true' && success()
         run: npm run build
 
       - name: Transfer build to VPS temporary folder
-        if: env.skip_lint == 'true' && success()
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -68,7 +31,6 @@ jobs:
           target: '/home/noxic/projects/bots/channel_manager/build_temp'
 
       - name: Transfer node_modules to VPS temporary folder
-        if: env.skip_lint == 'true' && success()
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -78,17 +40,15 @@ jobs:
           target: '/home/noxic/projects/bots/channel_manager/node_modules_temp'
 
       - name: Transfer other project files to VPS temporary folder (excluding src folder)
-        if: env.skip_lint == 'true' && success()
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
-          source: '.'
+          source: '.' # Transfers all files
           target: '/home/noxic/projects/bots/channel_manager/temp_project'
 
       - name: Remove src folder from temp_project on VPS
-        if: env.skip_lint == 'true' && success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -99,7 +59,6 @@ jobs:
             rm -rf src
 
       - name: Deploy new build, node_modules, and other files on VPS
-        if: env.skip_lint == 'true' && success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -108,20 +67,33 @@ jobs:
           script: |
             cd /home/noxic/projects/bots/channel_manager
 
+            # Ensure the backup directories exist as directories
             rm -rf build_backup
-            mv build build_backup 2>/dev/null || true
+            mv build build_backup 2>/dev/null || true  # Move old build to backup if it exists
 
             rm -rf node_modules_backup
-            mv node_modules node_modules_backup 2>/dev/null || true
+            mv node_modules node_modules_backup 2>/dev/null || true  # Move old node_modules to backup if it exists
 
+            # Remove any existing build and node_modules directories to prevent nesting
             rm -rf build
             rm -rf node_modules
 
+            # Move the new build and node_modules into place
             mv build_temp build
             mv node_modules_temp node_modules
 
-            rsync -a temp_project/ ./ 
+            # Copy other updated files from temp_project, excluding 'src' (already removed)
+            rsync -a temp_project/ ./
 
+            # Clean up the temp directory
             rm -rf temp_project
 
+            cd /home/noxic/projects/bots/channel_manager/build
+            rm -rf build
+            cd ..
+            cd node_modules
+            rm -rf node_modules
+            cd ..
+
+            # Restart the PM2 process
             pm2 restart "Bot: channelManager V2"
