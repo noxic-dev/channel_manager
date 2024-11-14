@@ -38,10 +38,7 @@ This bot was created by **Noxic**, a dedicated solo developer committed to build
 
 ### Licensing
 
-The source code for **Channel Manager** is open for educational and non-commercial purposes. However, the following restrictions apply:
-
-1. **No Malicious Use**: The bot's source code cannot be used for any malicious activity.
-2. **No Commercialization**: The source code and bot cannot be sold, monetized, or distributed as "premium" versions in any shape or form.
+- **ChannelManager** © 2024 by **Noxic** is licensed under [**CC BY-NC-SA 4.0**](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 ---
 
