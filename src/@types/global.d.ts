@@ -2,6 +2,8 @@ import type {
   Interaction,
   ApplicationCommandOptionData,
   PermissionResolvable,
+  ApplicationCommandType,
+  Message,
 } from 'discord.js'
 
 // Make sure to import necessary types
@@ -16,8 +18,9 @@ declare global {
   // src/types/CommandCallback.ts
 
   type CommandCallback = (
-    interaction: Interaction,
-    config: Record<string, unknown>
+    Interaction: Interaction | Message,
+    config: Record<string, unknown>,
+    args?: string[]
   ) => Promise<void>
 
   type CommandObject = {
@@ -33,5 +36,33 @@ declare global {
     permissions: string
     currentState: 'Enabled' | 'Disabled'
   }
+  type CommandFile = {
+    name: string
+    description: string
+    /**
+     * Represents the type of local operation or state.
+     *
+     * `localType` can have one of the following values:
+     * - `1`: Slashcommand.
+     * - `2`: Contextmenu command.
+     * - `3`: Prefix command.
+     */
+    localType: 1 | 2 | 3
+    contextType?: 1 | 2
+    options?: ApplicationCommandOptionData[]
+    permissions?: PermissionResolvable[]
+    ownerOnly?: boolean
+    callback: CommandCallback
+    commandType:
+      | ApplicationCommandType.ChatInput
+      | ApplicationCommandType.Message
+      | ApplicationCommandType.User
+      | undefined
+  }
+  type CommandArray = {
+    SlashCommands: CommandFile[]
+    ContextCommands: CommandFile[]
+    PrefixCommands: CommandFile[]
+  }
 }
-export type { Command, CommandCallback, Feature }
+export type { Command, CommandCallback, Feature, CommandArray, CommandFile }

@@ -2,26 +2,42 @@ import loadCommands from '@/utils/handlers/command'
 import Table from 'cli-table3'
 import { ActivityType, type Client } from 'discord.js'
 import path from 'path'
+import { CommandArray } from '@/types/global'
 import 'dotenv/config'
 
-let commands: Command[] = []
+let commands: CommandArray = {
+  ContextCommands: [],
+  PrefixCommands: [],
+  SlashCommands: [],
+}
 
 const commandsTable = new Table({
-  head: ['Command', 'Success'],
+  head: ['Command', 'Success', 'Type'],
   style: { head: ['green'] },
   colWidths: [15, 15],
 })
 
 export default async (client: Client): Promise<void> => {
   commands = await loadCommands(
-    client,
     path.join(__dirname, '../../', 'commands'),
+    client,
   )
-  commands.forEach((command) => {
-    commandsTable.push([command.name, '✅'])
+
+  const { ContextCommands, PrefixCommands, SlashCommands } = commands
+
+  ContextCommands.forEach((command) => {
+    commandsTable.push([command.name, command ? '✅' : '❌', 'Context Menu'])
   })
+
+  PrefixCommands.forEach((command) => {
+    commandsTable.push([command.name, command ? '✅' : '❌', 'Prefix Command'])
+  })
+
+  SlashCommands.forEach((command) => {
+    commandsTable.push([command.name, command ? '✅' : '❌', 'Slash Command'])
+  })
+
   console.log(commandsTable.toString())
-  console.timeEnd('Startup')
 
   client.user?.setPresence({
     activities: [

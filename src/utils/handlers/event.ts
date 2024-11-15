@@ -15,7 +15,6 @@ export default async (client: Client, eventDir: string): Promise<string[]> => {
           `${path.join(eventDir, event)}/${file}`
         )
         client.on(event, (...args) => {
-          console.log(`Running event: ${event}`)
           eventHandler.default(...args)
         })
         eventArray.push(event)
