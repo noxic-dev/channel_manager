@@ -4,13 +4,12 @@ import * as config from '@config';
 import util from 'util';
 
 export default (interaction: Message): unknown => {
-  let prefix;
+  let prefix = '';
+  const args = interaction.content.split(' ');
   if (interaction.author.bot) return;
   if (interaction.client.user.id !== '1303334967949922396') prefix = 'cm';
   else prefix = 'cm-dev';
-  if (!interaction.content.startsWith(prefix)) return;
-
-  const args = interaction.content.split(' ');
+  if (args[0] !== prefix) return;
 
   const localCommand = commands.PrefixCommands.find((c) => c.name === args[1]);
 
