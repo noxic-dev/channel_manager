@@ -1,6 +1,6 @@
 import { Message, PermissionsBitField } from 'discord.js';
 import { commands } from '@/events/ready/clientWake';
-import * as config from '@config';
+import config from '@config';
 import util from 'util';
 
 export default (interaction: Message): unknown => {
@@ -28,6 +28,10 @@ export default (interaction: Message): unknown => {
     if (!botHasPermissions) return interaction.react('❌');
   }
   // Execute the command
+  if (localCommand.ownerOnly) {
+    if (!config.ownerArray.includes(interaction.author.id))
+      return interaction.react('❌');
+  }
   localCommand.callback = util.promisify(localCommand.callback);
   localCommand.callback(interaction, config, args).catch((err: Error) =>
     interaction.reply({
