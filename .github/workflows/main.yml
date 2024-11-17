@@ -1,4 +1,4 @@
-name: VPS_PULL
+name: VPS_DEPLOY
 
 on:
   push:
@@ -6,11 +6,59 @@ on:
       - master
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
+    if: ${{ !contains(github.event.head_commit.message, '[deploy ignore]') }}
+
     steps:
-      - name: deploy over SSH
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Transfer build to VPS temporary folder
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: './build'
+          target: '/home/noxic/projects/bots/channel_manager/build_temp'
+
+      - name: Transfer node_modules to VPS temporary folder
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: './node_modules'
+          target: '/home/noxic/projects/bots/channel_manager/node_modules_temp'
+
+      - name: Transfer other project files to VPS temporary folder (excluding src folder)
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: '.' # Transfers all files
+          target: '/home/noxic/projects/bots/channel_manager/temp_project'
+
+      - name: Remove src folder from temp_project on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd /home/noxic/projects/bots/channel_manager/temp_project
+            rm -rf src
+
+      - name: Deploy new build, node_modules, and other files on VPS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -18,7 +66,34 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             cd /home/noxic/projects/bots/channel_manager
-            git pull origin master
-            npm ci
-            npm run build
+
+            # Ensure the backup directories exist as directories
+            rm -rf build_backup
+            mv build build_backup 2>/dev/null || true  # Move old build to backup if it exists
+
+            rm -rf node_modules_backup
+            mv node_modules node_modules_backup 2>/dev/null || true  # Move old node_modules to backup if it exists
+
+            # Remove any existing build and node_modules directories to prevent nesting
+            rm -rf build
+            rm -rf node_modules
+
+            # Move the new build and node_modules into place
+            mv build_temp build
+            mv node_modules_temp node_modules
+
+            # Copy other updated files from temp_project, excluding 'src' (already removed)
+            rsync -a temp_project/ ./
+
+            # Clean up the temp directory
+            rm -rf temp_project
+
+            cd /home/noxic/projects/bots/channel_manager/build
+            rm -rf build
+            cd ..
+            cd node_modules
+            rm -rf node_modules
+            cd ..
+
+            # Restart the PM2 process
             pm2 restart "Bot: channelManager V2"

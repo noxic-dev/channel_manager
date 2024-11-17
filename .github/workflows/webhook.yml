@@ -1,0 +1,58 @@
+name: Push Notification to Discord
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Send Discord Webhook Notification
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          latest_commit_message=$(git log -1 --pretty=format:"%s")
+          latest_commit_author=$(git log -1 --pretty=format:"%an")
+          branch_name=$(echo ${GITHUB_REF#refs/heads/})
+          commit_url="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+
+          # Send the POST request to Discord webhook using curl
+          curl -H "Content-Type: application/json" -X POST -d "{
+            \"username\": \"GitHub Bot\",
+            \"avatar_url\": \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\",
+            \"embeds\": [
+              {
+                \"title\": \"New Push to Repository\",
+                \"description\": \"A new push has been made to the repository **[${{ github.repository }}](https://github.com/${{ github.repository }})**\",
+                \"url\": \"https://github.com/${{ github.repository }}/commits/${branch_name}\",
+                \"color\": 7506394,
+                \"fields\": [
+                  {
+                    \"name\": \"Branch\",
+                    \"value\": \"\`${branch_name}\`\",
+                    \"inline\": true
+                  },
+                  {
+                    \"name\": \"Committer\",
+                    \"value\": \"${latest_commit_author}\",
+                    \"inline\": true
+                  },
+                  {
+                    \"name\": \"Latest Commit\",
+                    \"value\": \"\`${latest_commit_message}\`\n[View Commit](${commit_url})\"
+                  }
+                ],
+                \"footer\": {
+                  \"text\": \"GitHub Actions\",
+                  \"icon_url\": \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\"
+                },
+                \"timestamp\": \"$(date --utc +%Y-%m-%dT%H:%M:%SZ)\"
+              }
+            ]
+          }" $DISCORD_WEBHOOK_URL
