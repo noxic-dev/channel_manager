@@ -1,5 +1,5 @@
 export enum CommandFolderType {
-  Slashcommand = 'slash',
-  Contextcommand = 'context',
-  Prefixcommand = 'prefix',
+    Slashcommand = "slash",
+    Contextcommand = "context",
+    Prefixcommand = "prefix"
 }
