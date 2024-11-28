@@ -13,7 +13,13 @@
       "@/utils/*": ["./utils/*"],
       "@/commands/*": ["./commands/*"],
       "@/events/*": ["./events/*"],
+<<<<<<< Updated upstream
       "@/types/*": ["./types/*"]
+=======
+      "@/types/*": ["./@types/*"],
+      "@config": ["../config.json"],
+      "@/enums/*": ["./utils/enums/*"]
+>>>>>>> Stashed changes
     }
   },
   "include": ["src/**/*", "src/@types/**/*"]
