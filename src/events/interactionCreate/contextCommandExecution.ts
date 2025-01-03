@@ -88,10 +88,10 @@ export default async (
           return;
         });
     } else {
-      interaction.followUp({
+      /*       interaction.channel?.send({
         content:
           "This command requires database, but the owner is too lazy to even consider fixing this. so we will just ignore this for now.",
-      });
+      }); */
     }
   }
 
