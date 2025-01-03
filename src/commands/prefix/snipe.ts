@@ -1,8 +1,9 @@
-import { EmbedBuilder, Message, TextChannel } from 'discord.js';
+import { EmbedBuilder, type Message, TextChannel } from 'discord.js';
+
 import { messageArray } from '@/events/messageDelete/snipeStore';
 
 export default {
-  callback: (message: Message, config: void, args: string[]): unknown => {
+  callback: (message: Message): unknown => {
     if (!message.channel.isTextBased() || !message.channel.isSendable()) return;
 
     const snipedMessages = messageArray.filter(
@@ -19,6 +20,7 @@ export default {
 
     snipedMessages.forEach((snipedMessage) => {
       if (!(message.channel instanceof TextChannel)) return;
+
       const snipeEmbed = new EmbedBuilder()
         .setColor('#2f3136')
         .setAuthor({
@@ -26,7 +28,7 @@ export default {
           iconURL:
             message.client.users.cache
               .get(snipedMessage.authorId)
-              ?.displayAvatarURL() || '',
+              ?.displayAvatarURL() || ''
         })
         .setDescription(snipedMessage.content || 'No content')
         .setFooter({ text: 'The latest snipes in the last 60 seconds' })
@@ -37,12 +39,12 @@ export default {
           if (attachment.match(/\.(jpeg|jpg|gif|png|webp|mp4|mov)$/i)) {
             snipeEmbed.addFields({
               name: 'Attachment',
-              value: attachment,
+              value: attachment
             });
           } else {
             snipeEmbed.addFields({
               name: 'Other Attachment',
-              value: attachment,
+              value: attachment
             });
           }
         });
@@ -59,5 +61,5 @@ export default {
     });
 
     return;
-  },
+  }
 };

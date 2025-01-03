@@ -1,15 +1,15 @@
 import {
-  EmbedBuilder,
-  Guild,
   type ChatInputCommandInteraction,
-} from 'discord.js'
+  EmbedBuilder,
+  Guild
+} from 'discord.js';
 
 export default {
   callback: (interaction: ChatInputCommandInteraction): void => {
     if (!(interaction.guild instanceof Guild))
-      throw new Error('This command can only be used within a guild!')
+      throw new Error('This command can only be used within a guild!');
 
-    const guild = interaction.guild
+    const guild = interaction.guild;
 
     const embed = new EmbedBuilder()
       .setTitle('General Guild Information')
@@ -21,30 +21,30 @@ export default {
         {
           name: 'Members Count',
           value: `\`${guild.memberCount}\``,
-          inline: true,
+          inline: true
         },
         {
           name: 'Bot Joined Date',
           value: `\`${new Date(guild.joinedTimestamp).toDateString()}\``,
-          inline: true,
+          inline: true
         },
         {
           name: 'Days in Guild',
           value: `\`${Math.floor(
-            (Date.now() - guild.joinedTimestamp) / (1000 * 60 * 60 * 24),
+            (Date.now() - guild.joinedTimestamp) / (1000 * 60 * 60 * 24)
           )} days\``,
-          inline: true,
+          inline: true
         },
         {
           name: 'Invite to Add the Bot',
           value:
-            '[Click here to add the bot!](https://your-bot-invite-link.com)',
-        },
+            '[Click here to add the bot!](https://your-bot-invite-link.com)'
+        }
       )
       .setFooter({ text: 'Thanks for having me in your server!' })
-      .setTimestamp()
+      .setTimestamp();
 
     // Example usage: reply with the embed
-    interaction.reply({ embeds: [embed] })
-  },
-}
+    interaction.reply({ embeds: [embed] });
+  }
+};
