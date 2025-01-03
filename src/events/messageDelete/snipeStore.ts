@@ -1,6 +1,6 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import type { Message } from 'discord.js';
 
-let messageArray: Array<{
+let messageArray: {
   messageId: string;
   content: string;
   attachments: string[];
@@ -8,9 +8,9 @@ let messageArray: Array<{
   channelId: string;
   timestamp: number;
   embeds: object[];
-}> = [];
+}[] = [];
 
-export default async (message: Message): Promise<unknown> => {
+export default (message: Message): unknown => {
   const messageObject = {
     messageId: message.id,
     content: message.content,
@@ -18,7 +18,7 @@ export default async (message: Message): Promise<unknown> => {
     authorId: message.author.id,
     channelId: message.channel.id,
     timestamp: Date.now(),
-    embeds: message.embeds.map((embed) => embed.toJSON()),
+    embeds: message.embeds.map((embed) => embed.toJSON())
   };
 
   // Push message to the array

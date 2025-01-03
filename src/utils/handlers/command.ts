@@ -1,14 +1,15 @@
-import path from 'path';
-import fs from 'fs';
-import { CommandArray, CommandFile } from '@/types/global';
 import {
-  Client,
-  ClientApplication,
+  type ApplicationCommandData,
+  type ApplicationCommandDataResolvable,
+  type ApplicationCommandOption,
   ApplicationCommandType,
-  ApplicationCommandDataResolvable,
-  ApplicationCommandData,
-  ApplicationCommandOption,
+  type Client,
+  type ClientApplication
 } from 'discord.js';
+import fs from 'fs';
+import path from 'path';
+
+import type { CommandArray, CommandFile } from '@/types/global';
 import { CommandFolderType } from '@/utils/enums/commandEnums';
 
 type CustomCommandData = ApplicationCommandData & {
@@ -24,7 +25,7 @@ export default async function loadCommands(
   const commands: CommandArray = {
     ContextCommands: [],
     PrefixCommands: [],
-    SlashCommands: [],
+    SlashCommands: []
   };
   const commandsForRegistration: CustomCommandData[] = [];
   const fetchedCommands = await (
@@ -53,11 +54,17 @@ export default async function loadCommands(
           const command = commandModule.default || commandModule;
 
           // Extract command properties
-          const commandName = file.split('.')[0];
+          let commandName = file.split('.')[0];
           const commandDescription = `A ${folder} command with the permissions ${
             command.permissions?.join(', ') || 'none'
           }`;
 
+          commandName =
+            folder === 'context'
+              ? commandName
+                  .replace(/[-=]/g, ' ')
+                  .replace(/\b\w/g, (char) => char.toUpperCase())
+              : commandName;
           // Create a CommandFile object
           const commandFile: CommandFile = {
             name: commandName,
@@ -73,6 +80,8 @@ export default async function loadCommands(
                 : folder === 'context'
                 ? command.type
                 : undefined,
+            databaseRequired: command.databaseRequired || false,
+            commandOptions: command.commandOptions || null
           };
 
           // Determine where to add the command based on the folder type
@@ -83,7 +92,7 @@ export default async function loadCommands(
               description: commandFile.description,
               options: commandFile.options || [],
               type: commandFile.commandType,
-              localType: command.localType,
+              localType: command.localType
             });
           } else if (folder === CommandFolderType.Contextcommand) {
             commands.ContextCommands.push(commandFile);
@@ -92,7 +101,7 @@ export default async function loadCommands(
               description: '',
               options: commandFile.options,
               type: commandFile.commandType,
-              localType: command.localType,
+              localType: command.localType
             });
           } else if (folder === CommandFolderType.Prefixcommand) {
             commands.PrefixCommands.push(commandFile);
@@ -102,7 +111,9 @@ export default async function loadCommands(
           if (commandFile.localType !== 3) {
             const fetchedCommand = fetchedCommands.find(
               (cmd) =>
-                cmd.name === commandName && cmd.type === commandFile.commandType
+                cmd.name.replace(' ', '-').toLowerCase() ===
+                  commandName.replace(' ', '-').toLowerCase() &&
+                cmd.type === commandFile.commandType
             );
 
             if (!fetchedCommand) {
@@ -146,7 +157,7 @@ export default async function loadCommands(
                       name: option.name,
                       description: option.description,
                       type: option.type,
-                      required: 'required' in option ? option.required : false,
+                      required: 'required' in option ? option.required : false
                     }))
                     .sort((a, b) => a.name.localeCompare(b.name))
                 );
@@ -186,7 +197,7 @@ export default async function loadCommands(
     client.application?.commands.set(
       commandsForRegistration as ApplicationCommandDataResolvable[]
     );
-    console.log(`Reloaded commands successfully!`);
+    console.log('Reloaded commands successfully!');
   }
 
   return commands;

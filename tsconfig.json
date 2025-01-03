@@ -14,7 +14,8 @@
       "@/commands/*": ["./commands/*"],
       "@/events/*": ["./events/*"],
       "@/types/*": ["./@types/*"],
-      "@config": ["../config.json"]
+      "@config": ["../config.json"],
+      "@/enums/*": ["./utils/enums/*"]
     }
   },
   "include": ["src/**/*", "src/@types/**/*"]
