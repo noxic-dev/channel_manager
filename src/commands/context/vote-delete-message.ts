@@ -1,14 +1,8 @@
 import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
 import {
-  ActionRowComponentData,
-  ActionRowData,
   ApplicationCommandType,
-  ButtonComponentData,
   ButtonStyle,
-  Component,
-  ComponentType,
   ContextMenuCommandInteraction,
-  EmbedBuilder,
   Message,
   TextChannel
 } from 'discord.js';

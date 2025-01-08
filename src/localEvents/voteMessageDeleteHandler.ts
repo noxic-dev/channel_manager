@@ -74,8 +74,6 @@ export default function voteMessageDeleteHandler(): void {
       color,
       baseMessage: data.voteMessage
     });
-    //@ts-ignore
-    console.log(voteDetails.get(messageId));
 
     // Set TTL for 120 seconds from the initiation time
     const ttl = Math.max(0, 120000 - (Date.now() - startedAt));
@@ -129,13 +127,6 @@ export default function voteMessageDeleteHandler(): void {
 
     // Update the vote message embed for initiation and set content to ""
     await updateVoteMessage(messageId, interaction, true, animationFrames[0]);
-    try {
-    } catch (error) {
-      console.error(
-        `Failed to update message content for messageId: ${messageId}`,
-        { error }
-      );
-    }
   });
 
   eventBus.on('voteMessageUpdate', async (data) => {
@@ -175,6 +166,7 @@ export default function voteMessageDeleteHandler(): void {
       return;
     }
 
+    // eslint-disable-next-line prefer-const
     let { yes, no, startedAt, color } = voteDetail;
 
     if (voteType === 'vote') {

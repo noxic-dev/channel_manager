@@ -1,3 +1,12 @@
-// well I fucked up my eslint config, so I'm just going to ditch it (for now)
-// any code that is pushed is not linted, so I'm gonna have to do that later...
-// I'm going to have to make a new eslint config file, and then lint all the code that I've written
+import globals from "globals";
+import pluginJs from "@eslint/js";
+import tseslint from "typescript-eslint";
+
+
+/** @type {import('eslint').Linter.Config[]} */
+export default [
+  {files: ["**/*.{js,mjs,cjs,ts}"]},
+  {languageOptions: { globals: globals.browser }},
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
+];

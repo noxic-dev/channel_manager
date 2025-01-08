@@ -27,12 +27,15 @@
     "topgg-autoposter": "^2.0.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@types/express": "^5.0.0",
     "@types/node": "^22.9.3",
-    "globals": "^15.12.0",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
     "ts-node-dev": "^2.0.0",
     "tsc-watch": "^6.2.0",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.19.1"
   }
 }

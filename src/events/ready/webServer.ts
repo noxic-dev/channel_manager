@@ -5,7 +5,7 @@ import { sql } from "@/utils/connections/postgresDb";
 export default (client: Client) => {
   const web: Application = express();
   web.use(express.json()); // Ensure JSON middleware is added
-  // @ts-ignore
+  // @ts-expect-error shit express types
   web.use("*", (req, res) => {
     return res
       .status(200)
@@ -55,8 +55,7 @@ export default (client: Client) => {
     }
   });
 
-  // Fetch guilds where the user has "Manage Guild" permissions
-  // @ts-ignore
+  // @ts-expect-error shit express types
   web.get("/guilds", async (req: Request, res: Response) => {
     const userId = req.query.userId as string;
 
@@ -73,7 +72,7 @@ export default (client: Client) => {
         icon: string | null;
       }[] = [];
 
-      for (const [guildId, guild] of client.guilds.cache) {
+      for (const [, guild] of client.guilds.cache) {
         try {
           const member = await guild.members.fetch(userId);
           if (member.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
@@ -83,6 +82,7 @@ export default (client: Client) => {
               icon: guild.iconURL({ size: 1024 }) || null,
             });
           }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
           console.error(`Error fetching member in guild "${guild.name}":`);
         }
@@ -98,7 +98,7 @@ export default (client: Client) => {
   });
 
   // Fetch features for a specific guild
-  // @ts-ignore
+  // @ts-expect-error shit express types
   web.get("/features", async (req: Request, res: Response) => {
     const guildId = req.query.guildId as string;
 
@@ -121,7 +121,7 @@ export default (client: Client) => {
       }
 
       // Remove "allow_" prefix from each feature
-      const formattedFeatures = result.rows.map((row: any) => {
+      const formattedFeatures = result.rows.map((row) => {
         const updatedRow = { ...row };
         for (const key in updatedRow) {
           if (typeof updatedRow[key] === "string" && key.startsWith("allow_")) {
@@ -142,7 +142,7 @@ export default (client: Client) => {
   });
 
   // Fetch detailed guild data
-  // @ts-ignore
+  // @ts-expect-error shit express types
   web.get("/guild", async (req: Request, res: Response) => {
     const guildId = req.query.guildId as string;
 
@@ -172,6 +172,7 @@ export default (client: Client) => {
       };
 
       return res.status(200).json(guildData);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return res
         .status(500)

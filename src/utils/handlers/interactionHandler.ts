@@ -33,11 +33,11 @@ export default (baseDir: string, client: Client): void => {
     }
   }
 
-  interactions.forEach((int) => {
+  interactions.forEach(async (int) => {
     let interactionFile: InteractionFile;
 
     try {
-      interactionFile = require(int.path).default;
+      interactionFile = (await import(int.path)).default;
     } catch (err) {
       console.error(`Failed to load interaction file at ${int.path}:`, err);
 
