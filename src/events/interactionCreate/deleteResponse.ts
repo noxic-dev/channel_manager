@@ -1,9 +1,8 @@
-import type { ButtonInteraction } from 'discord.js';
+import { MessageFlags, type ButtonInteraction } from 'discord.js';
 
 export default async (
   interaction: ButtonInteraction<'cached'>
 ): Promise<unknown> => {
-  return;
   if (!interaction.isButton()) return;
   if (!interaction.customId.startsWith('DeleteResponse:')) return;
 
@@ -15,7 +14,7 @@ export default async (
   )
     return interaction.reply({
       content: 'You do not have permission to delete this message.',
-      ephemeral: true
+      flags: MessageFlags.Ephemeral
     });
 
   await interaction.message.delete();

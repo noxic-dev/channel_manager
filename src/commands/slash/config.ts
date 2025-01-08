@@ -4,7 +4,8 @@ import {
   ButtonBuilder,
   ButtonStyle,
   type ChatInputCommandInteraction,
-  EmbedBuilder
+  EmbedBuilder,
+  MessageFlags
 } from 'discord.js';
 
 import type { Feature } from '@/types/global';
@@ -64,7 +65,7 @@ export default {
     if (type !== 'features') {
       await interaction.reply({
         content: 'Feature not implemented yet.',
-        ephemeral: true
+        flags: MessageFlags.Ephemeral
       });
 
       return;
@@ -159,7 +160,7 @@ export default {
       embeds: [generateEmbed(currentPage)],
       components: [buttonRow1, buttonRow2],
       fetchReply: true,
-      ephemeral: true
+      flags: MessageFlags.Ephemeral
     });
 
     const collector = embedMessage.createMessageComponentCollector({

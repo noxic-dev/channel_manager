@@ -5,6 +5,7 @@ import {
   ButtonStyle,
   type ChatInputCommandInteraction,
   EmbedBuilder,
+  MessageFlags,
   TextChannel,
 } from "discord.js";
 
@@ -53,7 +54,7 @@ export default {
     interaction.reply({
       embeds: [pruneEmbed],
       components: [buttonRow],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
 
     const collector = (

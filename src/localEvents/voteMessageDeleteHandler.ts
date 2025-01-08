@@ -6,7 +6,8 @@ import {
   EmbedBuilder,
   TextChannel,
   ContextMenuCommandInteraction,
-  Message
+  Message,
+  MessageFlags
 } from 'discord.js';
 
 const timeouts = new Map<string, NodeJS.Timeout>(); // Store timeout IDs for each messageId
@@ -140,7 +141,7 @@ export default function voteMessageDeleteHandler(): void {
       console.debug(`User ${userId} is on cooldown.`);
       await interaction.reply({
         content: 'You can only vote once every 5 seconds.',
-        ephemeral: true
+        flags: MessageFlags.Ephemeral
       });
       return;
     }

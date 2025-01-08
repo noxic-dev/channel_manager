@@ -1,6 +1,7 @@
 import { startupTime } from '@/types/../source';
 import {
   ApplicationCommandOptionType,
+  MessageFlags,
   type ChatInputCommandInteraction
 } from 'discord.js';
 export default {
@@ -15,6 +16,6 @@ export default {
   permissions: ['SendMessages'],
 
   callback: (interaction: ChatInputCommandInteraction): unknown => {
-    return interaction.reply({ content: startupTime, ephemeral: true });
+    return interaction.reply({ content: startupTime,  flags: MessageFlags.Ephemeral });
   }
 };

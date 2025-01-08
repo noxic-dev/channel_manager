@@ -1,4 +1,4 @@
-import type { ButtonInteraction } from 'discord.js';
+import { MessageFlags, type ButtonInteraction } from 'discord.js';
 
 export default {
   customId: 'DeleteResponse:',
@@ -13,7 +13,7 @@ export default {
     )
       return interaction.reply({
         content: 'You do not have permission to delete this message.',
-        ephemeral: true
+        flags: MessageFlags.Ephemeral
       });
 
     await interaction.message.delete();

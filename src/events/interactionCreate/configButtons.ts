@@ -1,4 +1,4 @@
-import type { ButtonInteraction } from 'discord.js';
+import { MessageFlags, type ButtonInteraction } from 'discord.js';
 
 import { sql } from '@/utils/connections/postgresDb';
 
@@ -25,7 +25,7 @@ export default async (
 
   interaction.reply({
     content: `Feature ${featureName} has been ${action}d.`,
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
     components: [],
     embeds: []
   });

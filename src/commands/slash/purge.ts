@@ -1,5 +1,6 @@
 import {
   ApplicationCommandOptionType,
+  MessageFlags,
   type ChatInputCommandInteraction,
   type TextChannel
 } from 'discord.js';
@@ -25,7 +26,7 @@ export default {
       throw new Error("You can't delete less than 1 message");
 
     const splitChunks = splitNumber(clearAmount, 100);
-    interaction.deferReply({ ephemeral: true });
+    interaction.deferReply({ flags: MessageFlags.Ephemeral });
     for await (const chunk of splitChunks) {
       await channel.bulkDelete(chunk);
     }

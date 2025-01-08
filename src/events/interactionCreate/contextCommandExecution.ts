@@ -1,6 +1,7 @@
 import * as config from "@config";
 import {
   ApplicationCommandType,
+  MessageFlags,
   type MessageContextMenuCommandInteraction,
   type PermissionsBitField,
   type UserContextMenuCommandInteraction,
@@ -27,7 +28,7 @@ export default async (
   if (!localCommand)
     return interaction.reply({
       content: "Unknown command! (context)",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
 
   // Check permissions
@@ -44,14 +45,14 @@ export default async (
         content: `You're missing permissions to run this command! \n-# Permissions: ${localCommand.permissions.join(
           ", "
         )}\n-# [Join our support server for help!](<https://discord.gg/mhsYUgFDbM>)`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     if (!botHasPermissions)
       return interaction.reply({
         content: `I'm missing permissions to run this command! \n-# Permissions: ${localCommand.permissions.join(
           ", "
         )}\n-# [Join our support server for help!](<https://discord.gg/mhsYUgFDbM>)`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
   }
 
@@ -78,7 +79,7 @@ export default async (
             interaction.reply({
               content:
                 "This command is disabled by the server administrators.\n-# **To enable this command, Run `/config` and click enable.** \n-# [Join our support server for help!](<https://discord.gg/mhsYUgFDbM>)",
-              ephemeral: true,
+              flags: MessageFlags.Ephemeral,
             });
             commandShouldBeCancelled = true;
 
@@ -101,7 +102,7 @@ export default async (
     interaction.reply({
       content: `**Command execution cancelled,** \`${err.message}\`\n-# [Join our support server for help!](<https://discord.gg/mhsYUgFDbM>)`,
 
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   });
 

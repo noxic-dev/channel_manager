@@ -4,6 +4,7 @@ import {
   ButtonStyle,
   ContextMenuCommandInteraction,
   Message,
+  MessageFlags,
   TextChannel
 } from 'discord.js';
 import eventBus from '@/utils/connections/eventBus';
@@ -49,6 +50,6 @@ export default {
       voteMessage
     });
 
-    await interaction.reply({ content: 'Vote started!', ephemeral: true });
+    await interaction.reply({ content: 'Vote started!', flags: MessageFlags.Ephemeral });
   }
 };
